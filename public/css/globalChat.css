@@ -1,0 +1,53 @@
+#global-chat {
+  display: none;
+  width: 60%;
+  height: 80%;
+  margin: auto;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+
+}
+
+#chat-area {
+  background-color: #00BF4D;
+  width: 65%;
+  height: 100%;
+  float: right;
+}
+
+#players-list {
+  background-color: #00BF4D;
+  width: 25%;
+  height: 100%;
+  float: left;
+  overflow-y: scroll;
+}
+
+#global-chat-area {
+  width: 90%;
+  height: 80%;
+  display: block;
+  resize: none;
+  margin: auto;
+  left: 0; right: 0; top: 0; bottom: 0;
+}
+
+#global-chat-message {
+  width: 69%;
+  height: 100%;
+  resize: none;
+  display: inline-block;
+}
+
+#global-chat-send-message {
+  width: 29%;
+  height: 100%;
+  float: right;
+}
+
+#global-chat-input-box {
+  width: 90%;
+  height: 10%;
+  margin: auto;
+  padding-top: 1%;
+}

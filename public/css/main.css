@@ -1,0 +1,39 @@
+body {
+  background-color: #59FF84;
+}
+
+/*div {
+  border: 1px solid black;
+}*/
+
+
+.player {
+  width: 100%;
+  background-color: transparent;
+  font-size: 1em;
+}
+
+
+
+#login-form {
+  display: block;
+  width: 20%;
+  height: 20%;
+  margin: auto;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
