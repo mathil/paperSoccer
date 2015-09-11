@@ -1,12 +1,7 @@
 $(document).ready(function () {
 
-
-//    $("#login-form").hide();
-//    $("#game-area").show();
-
     var socket = new Socket();
     var nickname = "";
-
 
     socket.on('loginResponse', function (data) {
         console.log('ifUserExists ' + data.isUserExists);
@@ -30,8 +25,6 @@ $(document).ready(function () {
         $("#global-chat-area").val($("#global-chat-area").val() + '\n' + data.message);
     });
 
-
-
     socket.on('newInvite', function (data) {
         if (confirm(data.from + " zaprasza cię do gry. Akceptujesz?")) {
 
@@ -39,11 +32,8 @@ $(document).ready(function () {
                 'accept': true,
                 'to': data.from
             });
-
-            $("#global-chat").hide();
-            $("#game-area").show();
-
-
+            enableGameArea();
+            
         } else {
 
             socket.emit('inviteResponse', {
@@ -66,15 +56,14 @@ $(document).ready(function () {
             $("#players").append(elem);
         }
     });
-    
-    
 
     socket.on('inviteResponse', function (data) {
-        alert(data.response);
+        if(data.response) {
+            enableGameArea();
+        } else {
+            alert("Użytkownik odrzucił zaproszenie");
+        }
     });
-
-
-
 
     $('#login-form-form').submit(function (evt) {
         evt.preventDefault();
@@ -84,14 +73,12 @@ $(document).ready(function () {
         });
     });
 
-
     $("#global-chat-send-message").click(function () {
         socket.emit('globalChatMessage', {
             message: $("#global-chat-message").val()
         })
         $("#global-chat-message").val("");
     });
-
 
     $("#players-list").on('click', '.player', function () {
         var id = $(this).attr('id');
@@ -100,6 +87,10 @@ $(document).ready(function () {
             to: id
         });
     });
-
+    
+    var enableGameArea = function(){
+        $("#game-area").show();
+        $("#global-chat").hide();
+    };
 
 });

@@ -59,7 +59,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('disconnect', function () {
         console.log(socket.nickname + " zamknął połączenie");
         
-        removeClient({id: socket.id, nickname: socket.nickname});
+        removeClient(socket.nickname);
         io.sockets.emit('removeFromPlayersList', {
             nickname: socket.nickname 
         });
@@ -69,7 +69,7 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('globalChatMessage', function (data) {
         io.sockets.emit('updateGlobalChat', {
-            message: getCurrentTimeAsString() + " " + socket.nickname + ": " + data.message
+            message: socket.nickname + " " + getCurrentTimeAsString() + ": " + data.message
         });
     });
 
@@ -115,13 +115,15 @@ var getCurrentTimeAsString = function () {
     return hour + ":" + minutes + ":" + seconds;
 };
 
-var removeClient = function (client) {
-    
-    var index = clients.indexOf(client);
-    
+var removeClient = function (nickname) {
+    var index = -1;
+    for(var i=0; i < clients.length; i++) {
+        if(clients[i].nickname === nickname) {
+            index = i;
+            i = clients.length;
+        }
+    }
     if(index > -1) {
         clients.splice(index, 1);
     }
-    
-    
 }

@@ -7,3 +7,5 @@ var firstPlayer = "";
 var secondPlayer = "";
 
 var score = 0;
+
+

@@ -1,4 +1,71 @@
 
 #game-area {
-  display: none;
+  /*display: none;*/
+  background: #33CC33;
+  margin: auto;
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
+  width: 80%;
+  height: 80%;
+  
+}
+
+#game-canvas {
+    background-color: #009933;
+    width: 65%;
+    height: 90%;
+    margin: auto;
+    top: 0; bottom: 0; left: 2%;
+    position: absolute;
+}
+
+#game-chat-area {
+    width: 30%;
+    height: 90%;
+    position: absolute;
+    margin: auto;
+    top: 0; bottom: 0; right: 2%;
+}
+
+#score {
+    position: absolute;
+    margin: auto;
+    top: 1%;
+    left: 0; right: 0;
+    width: 50%;
+    font-size: 150%;
+    
+}
+
+#game-chat {
+    position: absolute;
+    margin: auto;
+    top: 5%;
+    width: 99%;
+    height: 85%;
+    resize: none;
+    opacity: 0.5;
+    color: white;
+    background-color: #009933;
+    
+}
+
+#game-chat-input-box {
+    position: absolute;
+    margin: auto;
+    bottom: 1%;
+    width: 100%;
+}
+
+#game-chat-input {
+    font-size: 150%;
+    width: 70%;
+    height: 100%;
+}
+
+#game-chat-input-button {
+    font-size: 150%;
+    width: 25%;
+    height: 100%;    
+    float: right;
 }

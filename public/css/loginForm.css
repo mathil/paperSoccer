@@ -1,19 +1,34 @@
 
 #login-form {
-  display: block;
-  width: 30%;
-  height: 30%;
-  margin: auto;
-  position: absolute;
-  top: 0; left: 0; bottom: 0; right: 0;
+    display: none;
+    width: 30%;
+    height: 20%;
+    margin: auto;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+
 }
 
 #login {
-    font-size: 200%;
+    display: block;
+    margin: 0 auto;
+    width: 80%;
+    font-size: 30px;
+    text-align: center;
+
 }
 
 #login-form-submit {
-    background-color: green;
+    display: block;
+    margin: 0 auto;
+    width: 30%;
+    color: #ffffff;
+    background-color: #049600;
+    margin-top: 10px;
+    font-size: 25px;
+    border: 0;
+
+
 }
 
 
