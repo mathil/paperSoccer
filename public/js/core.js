@@ -62,7 +62,8 @@ var drawArea = function () {
         }
     }
 
-//    context.fillRect(90, 315, 2, 2);
+    context.fillRect(80, 275, 2, 2);
+    context.fillRect(580, 270, 2, 2);
 
     context.stroke();
 

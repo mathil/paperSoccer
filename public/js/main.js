@@ -1,14 +1,9 @@
 $(document).ready(function () {
 
-    $("#login-form").hide();
-    $("#global-chat").hide();
-    enableGameArea();
-    drawArea();
-    
-    
     var socket = new Socket();
     var nickname = "";
 
+    //Odpowiedź na żądanie zalogowania
     socket.on('loginResponse', function (data) {
         console.log('ifUserExists ' + data.isUserExists);
         if (data.isUserExists) {
@@ -27,10 +22,12 @@ $(document).ready(function () {
 
     });
 
+    //Aktualizacja czatu globalnego
     socket.on('updateGlobalChat', function (data) {
         $("#global-chat-area").val($("#global-chat-area").val() + '\n' + data.message);
     });
 
+    //Nowe zaproszenie od użytkownika
     socket.on('newInvite', function (data) {
         if (confirm(data.from + " zaprasza cię do gry. Akceptujesz?")) {
 
@@ -40,7 +37,7 @@ $(document).ready(function () {
             });
             enableGameArea();
             $("#score").html(this.nickname + " 0 : 0 " + data.from);
-            
+
         } else {
 
             socket.emit('inviteResponse', {
@@ -50,30 +47,35 @@ $(document).ready(function () {
 
         }
     });
-    
-    socket.on('removeFromPlayersList', function(data){
+
+    //Obsługa zdarzenia usunięcia użytkownika
+    socket.on('removeFromPlayersList', function (data) {
         console.log('usuwam ' + data.nickname);
-        $("#"+data.nickname).remove();
+        $("#" + data.nickname).remove();
     });
-    
-    socket.on('addToPlayersList', function(data){
+
+    //Dodanie do listy nowego użytkownika
+    socket.on('addToPlayersList', function (data) {
         console.log('addToPlayersList');
-        if(data.nickname !== nickname) {
+        if (data.nickname !== nickname) {
             var elem = $("<button class='player' id='" + data.nickname + "'>" + data.nickname + "</button>");
             $("#players").append(elem);
         }
     });
 
+
+    //Odpowiedź na wysłane zaproszenie do gry
     socket.on('inviteResponse', function (data) {
-        if(data.response) {
+        if (data.response) {
             enableGameArea();
-            console.log('game ' + data.game.getRoomId());
+            console.log('game');
             $("#score").html(this.nickname + " 0 : 0 " + data.from);
 
         } else {
             alert("Użytkownik odrzucił zaproszenie");
         }
     });
+
 
     $('#login-form-form').submit(function (evt) {
         evt.preventDefault();
@@ -97,11 +99,13 @@ $(document).ready(function () {
             to: id
         });
     });
-    
-    
+
+
 
 });
-var enableGameArea = function(){
-        $("#game-area").show();
-        $("#global-chat").hide();
-    };
+
+
+var enableGameArea = function () {
+    $("#game-area").show();
+    $("#global-chat").hide();
+};
