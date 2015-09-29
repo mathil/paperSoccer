@@ -1,16 +1,17 @@
 
 #game-area {
-  /*display: none;*/
-  background: #33CC33;
-  margin: auto;
-  position: absolute;
-  left: 0; right: 0; top: 0; bottom: 0;
-  width: 80%;
-  height: 80%;
-  
+    display: none;
+    background: #33CC33;
+    margin: auto;
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    width: 80%;
+    height: 80%;
+
 }
 
 #game-canvas {
+    border: 1px solid black;
     background-color: #009933;
     width: 65%;
     height: 90%;
@@ -34,7 +35,7 @@
     left: 0; right: 0;
     width: 50%;
     font-size: 150%;
-    
+
 }
 
 #game-chat {
@@ -47,7 +48,7 @@
     opacity: 0.5;
     color: white;
     background-color: #009933;
-    
+
 }
 
 #game-chat-input-box {

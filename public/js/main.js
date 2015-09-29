@@ -1,5 +1,11 @@
 $(document).ready(function () {
 
+    $("#login-form").hide();
+    $("#global-chat").hide();
+    enableGameArea();
+    drawArea();
+    
+    
     var socket = new Socket();
     var nickname = "";
 
@@ -33,6 +39,7 @@ $(document).ready(function () {
                 'to': data.from
             });
             enableGameArea();
+            $("#score").html(this.nickname + " 0 : 0 " + data.from);
             
         } else {
 
@@ -60,6 +67,9 @@ $(document).ready(function () {
     socket.on('inviteResponse', function (data) {
         if(data.response) {
             enableGameArea();
+            console.log('game ' + data.game.getRoomId());
+            $("#score").html(this.nickname + " 0 : 0 " + data.from);
+
         } else {
             alert("Użytkownik odrzucił zaproszenie");
         }
@@ -88,9 +98,10 @@ $(document).ready(function () {
         });
     });
     
-    var enableGameArea = function(){
+    
+
+});
+var enableGameArea = function(){
         $("#game-area").show();
         $("#global-chat").hide();
     };
-
-});
