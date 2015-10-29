@@ -92,18 +92,27 @@ io.sockets.on('connection', function (socket) {
         if (data.accept) {
             var roomId = generateRoomId();
             var game = new game_core.Game(receiver.nickname, socket.nickname, roomId);
-            
+
             games.push({roomId: roomId, game: game});
-            
+
             io.sockets.connected[receiver.id].join(roomId);
-            socket.join.roomId;
-            io.to(receiver.id).emit('inviteResponse', {
-                response: data.accept,
-                game: game
+            socket.join(roomId);
+            
+            
+            io.to(roomId).emit('startGame', {
+                gameParams: game.getBasicGameParameters()
+            });
+        } else {
+            io.to(receiver.id).emit('inviteRefused', {
             });
         }
-
     });
+    
+    socket.on('sendCoordinates', function(data){
+        
+    })
+    
+    
 
 });
 
@@ -120,10 +129,10 @@ var getSocketByNickname = function (nickname) {
     return result;
 };
 
-var getGameByRoomId = function(roomId){
+var getGameByRoomId = function (roomId) {
     var result = null;
-    games.forEach(function(game) {
-        if(game.roomId === roomId)
+    games.forEach(function (game) {
+        if (game.roomId === roomId)
             result = game.game;
     });
     return result;
