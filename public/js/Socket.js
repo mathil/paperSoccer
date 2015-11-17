@@ -75,8 +75,8 @@ Socket.prototype.listen = function() {
     this.socket.on('startGame', function (data) {
         console.log(JSON.stringify(data));
         enableGameArea();
-        core.setBasicParameters(data.gameParams);
-        core.drawArea();
+        gameArea.init(data.gameParams);
+        gameArea.drawArea();
     });
 };
 

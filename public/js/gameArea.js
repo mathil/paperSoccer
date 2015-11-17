@@ -1,22 +1,28 @@
 
+var self;
 
-var Core = function () {
+
+var GameArea = function () {
 
 };
 
-Core.prototype.setBasicParameters = function (params) {
+GameArea.prototype.init = function (params) {
+    console.log(JSON.stringify(params));
     this.playerA = params.playerA;
     this.playerB = params.playerB;
     this.playerAColorLine = params.playerAColorLine;
     this.playerBColorLine = params.playerBColorLine;
-    $("#score").html(this.playerA + "0 : 0" + this.playerB);
+    this.lastPoint = params.lastPoint;
+    this.setSgameArea();
+    self = this;
+
 };
 
 
 /**
  * Rysowanie planszy gry
  */
-Core.prototype.drawArea = function () {
+GameArea.prototype.drawArea = function () {
     this.nodes = this.fillNodes();
     var canvas = document.getElementById('game-canvas');
     var context = canvas.getContext('2d');
@@ -76,25 +82,34 @@ Core.prototype.drawArea = function () {
     context.fillRect(90, 225, 2, 2);
     context.fillRect(540, 225, 2, 2);
 
-
-
     context.stroke();
 
-    var self = this;
     canvas.onclick = function (evt) {
-        console.log(canvas.width + " x " + canvas.height);
-        var rect = canvas.getBoundingClientRect();
+        if (self.lock) {
+            return;
+        }
 
+        var rect = canvas.getBoundingClientRect();
         var x = Math.round((evt.clientX - rect.left) * (canvas.width / canvas.offsetWidth));
         var y = Math.round((evt.clientY - rect.top) * (canvas.height / canvas.offsetHeight));
-
         var nearest = self.getNearestNode(x, y);
         alert(JSON.stringify(nearest));
+
+        SOCKET.getSocket().emit('validateMove', {
+            from: {
+                x: self.lastPoint.x,
+                y: self.lastPoint.y
+            },
+            to: {
+                x: nearest.x,
+                y: nearest.y
+            }
+        });
     };
+
 };
 
-
-Core.prototype.fillNodes = function () {
+GameArea.prototype.fillNodes = function () {
     var nodes = [];
     for (var i = 90; i <= 540; i += 45) {
         for (var j = 45; j <= 405; j += 45) {
@@ -104,11 +119,30 @@ Core.prototype.fillNodes = function () {
     return nodes;
 };
 
-Core.prototype.getNearestNode = function (x, y) {
+GameArea.prototype.getNearestNode = function (x, y) {
     var nearestNode;
     this.nodes.forEach(function (node) {
         if ((x < node.x + 22 && x > node.x - 23) && (y < node.y + 22 && y > node.y - 23))
             nearestNode = node;
     });
     return nearestNode;
+};
+
+GameArea.prototype.drawLine = function () {
+
+};
+
+GameArea.prototype.lockArea = function () {
+    this.lock = true;
+};
+
+GameArea.prototype.unlockArea = function () {
+    this.lock = false;
+};
+
+GameArea.prototype.setSgameArea = function () {
+    $("#player-a-nick").html(this.playerA);
+    $("#player-b-nick").html(this.playerB);
+    $("#score").html("0:0");
+
 };

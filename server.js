@@ -1,26 +1,25 @@
-
-
 // server.js
-// load the things we need
 var express = require('express');
 var app = express();
 var port = 8080;
 
-var clients = [];
 var rooms = [];
 var games = [];
 
-// set the view engine to ejs
 app.set('view engine', 'ejs');
 
-var game_core = require('./logic/Game.js');
+var Game = require('./logic/Game.js');
+var User = require('./logic/User.js');
+var UsersCollection = require('./logic/UsersCollection.js');
+
+var usersCollection = new UsersCollection();
 
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/lib'));
 
 
 
-// index page
+// index
 app.get('/', function (req, res) {
     res.render('index');
 });
@@ -37,21 +36,22 @@ io.sockets.on('connection', function (socket) {
     //Mechanizm logowania do gry
     socket.on('login', function (data, callback) {
         var isUserExists = false;
-        var players = null;
 
-        if (getSocketByNickname(data.nickname) !== null) {
+        if (usersCollection.isExists(data.nickname)) {
             isUserExists = true;
         } else {
             console.log(data.nickname + " podłączył się do gry");
             socket.nickname = data.nickname;
-            clients.push({nickname: data.nickname, id: socket.id, hasGame: false});
-            console.log("Liczba graczy " + clients.length);
-            players = clients;
+            
+            user = new User(data.nickname, socket.id);
+            usersCollection.add(user);
+            
+            console.log("Liczba graczy " + usersCollection.getSize());
             console.log('socket id: ' + socket.id);
         }
         socket.emit('loginResponse', {
             isUserExists: isUserExists,
-            players: players
+            players: usersCollection.getList()
         });
 
         io.sockets.emit('addToPlayersList', {
@@ -63,7 +63,7 @@ io.sockets.on('connection', function (socket) {
     //Obsługa rozłączenia użytkownika
     socket.on('disconnect', function () {
         console.log(socket.nickname + " zamknął połączenie");
-        removeClient(socket.nickname);
+        removeUser(socket.nickname);
         io.sockets.emit('removeFromPlayersList', {
             nickname: socket.nickname
         });
@@ -81,53 +81,42 @@ io.sockets.on('connection', function (socket) {
     socket.on('invite', function (data) {
         console.log("Zaproszenie do gry od " + data.from + " dla " + data.to);
 
-        var receiver = getSocketByNickname(data.to);
-        io.to(receiver.id).emit('newInvite', {from: data.from});
+        var receiver = usersCollection.getByNickname(data.to);
+        io.to(receiver.getId()).emit('newInvite', {from: data.from});
 
     });
 
     //Odpowiedź na zaproszenie do gry
     socket.on('inviteResponse', function (data) {
-        var receiver = getSocketByNickname(data.to);
+        var receiver = usersCollection.getByNickname(data.to);
         if (data.accept) {
             var roomId = generateRoomId();
-            var game = new game_core.Game(receiver.nickname, socket.nickname, roomId);
+            var game = new Game(receiver.getNickname(), socket.nickname, roomId);
 
             games.push({roomId: roomId, game: game});
 
-            io.sockets.connected[receiver.id].join(roomId);
+            io.sockets.connected[receiver.getId()].join(roomId);
             socket.join(roomId);
             
             
+            
             io.to(roomId).emit('startGame', {
-                gameParams: game.getBasicGameParameters()
+                gameParams: game.getStartGameParameters()
             });
         } else {
-            io.to(receiver.id).emit('inviteRefused', {
+            io.to(receiver.getId()).emit('inviteRefused', {
             });
         }
     });
     
-    socket.on('sendCoordinates', function(data){
+    socket.on('validateMove', function(data) {
+        console.log('walidacja ruchu');
+        console.log(JSON.stringify(data));
         
-    })
-    
-    
-
-});
-
-
-
-var getSocketByNickname = function (nickname) {
-    var result = null;
-    clients.forEach(function (client) {
-        if (client.nickname === nickname) {
-            result = client;
-        }
-        ;
+        
+        
     });
-    return result;
-};
+});
 
 var getGameByRoomId = function (roomId) {
     var result = null;
@@ -139,29 +128,6 @@ var getGameByRoomId = function (roomId) {
 };
 
 
-var getCurrentTimeAsString = function () {
-    var date = new Date();
-    var hour = date.getHours();
-    var minutes = date.getMinutes();
-    var seconds = date.getSeconds();
-
-    // hour = hour % 2 != 0 ? hour : '0' + hour;
-
-    return hour + ":" + minutes + ":" + seconds;
-};
-
-var removeClient = function (nickname) {
-    var index = -1;
-    for (var i = 0; i < clients.length; i++) {
-        if (clients[i].nickname === nickname) {
-            index = i;
-            i = clients.length;
-        }
-    }
-    if (index > -1) {
-        clients.splice(index, 1);
-    }
-};
 
 var generateRoomId = function () {
     var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

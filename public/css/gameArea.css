@@ -32,10 +32,24 @@
     font-size: 150%;
 }
 
-#score {
+#score-container {
+    display: flex;
     text-align: center;
-    top: 10%;
     font-size: 200%;
+    color: #ffffff;
+    margin: auto;
+    position: absolute;
+}
+
+#player-a-nick {
+}
+
+#player-b-nick {
+    padding-left: 5%;
+}
+
+#score {
+    padding-left: 5%;
 }
 
 #remove-move-button {
