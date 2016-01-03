@@ -76,14 +76,47 @@ Socket.prototype.listen = function() {
         console.log(JSON.stringify(data));
         enableGameArea();
         gameArea.init(data.gameParams);
+        console.log('nickname ' + nickname);
+        console.log('data.startingUser ' + data.startingUser);
+        if(nickname === data.startingUser) {
+            gameArea.unlockArea();
+        } else {
+            gameArea.lockArea();
+        }
+        
         gameArea.drawArea();
     });
+    
+    this.socket.on('stopGame', function(data){
+        alert(data.nickname + " opuścił grę");
+        disableGameArea();
+    });
+    
+    this.socket.on('moveIsValid', function(data) {
+        gameArea.drawMove(data.x, data.y);
+    });
+    
+    this.socket.on('moveIsNotValid', function(data) {
+        
+    });
+    
+    this.socket.on('updateGameChat', function(data) {
+        $("#game-chat").val($("#game-chat").val() + '\n' + data.message);
+    });
+    
+    
 };
 
 var enableGameArea = function () {
     $("#global-chat").hide();
     $("#game-area").show();
 };
+
+var disableGameArea = function() {
+    $("#global-chat").show();
+    $("#game-area").hide();
+    
+}
 
 var enableGlobalChat = function () {
     $("#global-chat").show();

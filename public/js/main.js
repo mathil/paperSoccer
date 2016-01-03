@@ -1,6 +1,6 @@
 var gameArea = new GameArea();
 var SOCKET;
-
+var nickname;
 
 var addListeners = function () {
     $('#login-form-form').submit(function (evt) {
@@ -23,11 +23,24 @@ var addListeners = function () {
 
     $("#players-list").on('click', '.player', function () {
         var id = $(this).attr('id');
-        SOCKET.getSocket().emit('invite', {
-            from: nickname,
-            to: id
+        if (id !== nickname) {
+            SOCKET.getSocket().emit('invite', {
+                from: nickname,
+                to: id
+            });
+        }
+    });
+    
+    $("#game-chat-input-button").click(function() {
+        var message = $("#game-chat-input").val();
+        $("#game-chat-input").val("");
+        
+        SOCKET.getSocket().emit('gameChatMessage', {
+            message: message
         });
     });
+    
+    
 };
 
 $(document).ready(function () {

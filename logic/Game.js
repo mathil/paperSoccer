@@ -2,7 +2,7 @@
  * Logika gry
  */
 
-var self;
+var that;
 
 
 /**
@@ -20,15 +20,13 @@ var Game = function (playerA, playerB, roomId) {
     this.scorePlayerB = 0;
     this.playerAColorLine = "";
     this.playerBColorLine = "";
-    this.nodes = this.initNodesArray();
-
-    this.hasNextMove = null;
+    this.usedNodes = this.initNodesArray();
+    this.usedPatches = [];
 
     this.lastPoint = {// domyślnie środek planszy
         x: 315,
         y: 225
     };
-
 
     var colors = ["#ff0000", "#0000FF"];
     if (Math.random() >= 0.5) {
@@ -38,11 +36,10 @@ var Game = function (playerA, playerB, roomId) {
         this.playerAColorLine = colors[1];
         this.playerBColorLine = colors[0];
     }
-    self = this;
+    that = this;
 
 };
 
-module.exports = Game; 
 
 Game.prototype.getPlayerA = function () {
     return this.playerA;
@@ -74,31 +71,34 @@ Game.prototype.getStartGameParameters = function () {
     };
 };
 
-Game.prototype.randFirstMove = function() {
-    
+Game.prototype.haveNextMove = function () {
 };
 
-Game.prototype.move = function (x, y) {
-    if (!self.isValidMove())
-        return;
-    if (self.isNodeUsed(x, y)) {
-        
-    }
-
-
-};
 
 Game.prototype.isValidMove = function (x, y) {
-    cosole.log('isValidMove');
-    if (!(self.lastPoint.x > x + 45 || self.lastPoint.y < x - 45) &&
-            !(self.lastPoint.y > y + 45 || self.lastPoint.y < y - 45)) {
-        console.log('95');
+    if (!((that.lastPoint.x - 45 <= x && that.lastPoint.x + 45 >= x)
+            && (that.lastPoint.y - 45 <= y && that.lastPoint.y + 45 >= y))) {
+        console.log('98');
         return false;
     }
-    if (self.isNodeUsed(x, y)) {
-        console.log('99');
+
+    if (this.validatePath(this.lastPoint.x, this.lastPoint.y, x, y)) {
+        console.log('sciezka uzyta');
         return false;
     }
+
+    this.usedPatches.push(
+            {
+                startX: this.lastPoint.x,
+                startY: this.lastPoint.y,
+                endX: x,
+                endY: y
+            }
+    );
+
+
+    that.lastPoint.x = x;
+    that.lastPoint.y = y;
     return true;
 
 };
@@ -113,28 +113,78 @@ Game.prototype.initNodesArray = function () {
     return nodes;
 };
 
+
 Game.prototype.isNodeUsed = function (x, y) {
     var used = false;
-    self.nodesArray.forEach(function (node) {
+    that.usedNodes.forEach(function (node) {
         if (node.x === x && node.y === y) {
-            used = true;
-            return;
+            if (node.used)
+                return true;
+            return false;
         }
     });
     return used;
 };
 
 
+Game.prototype.validatePath = function (startX, startY, endX, endY) {
+    var firstCondition = false;
+    var secondCondition = false;
+    this.usedPatches.forEach(function (path) {
+        if (path.startX === startX
+                && path.startY === startY
+                && path.endX === endX
+                && path.endY === endY) {
+            firstCondition = true;
+        }
+        if (path.startX === endX
+                && path.startY === endY
+                && path.endX === startX
+                && path.endY === startY) {
+            secondCondition = true;
+        }
+    });
+    return firstCondition || secondCondition;
+};
+
+Game.prototype.validNode = function () {
+    if (this.isNodeUsed(this.lastPoint.x, this.lastPoint.y)) {
+        if (this.isMoveAvailable()) {
+            return true;
+        }
+    }
+    return false;
+};
+
+Game.prototype.isMoveAvailable = function () {
+    var x = this.lastPoint.x;
+    var y = this.lastPoint.y;
+
+    var isAvailable = true;
+
+    this.usedPatches.forEach(function (path) {
+        if (path.startX === x - 45 && path.startY === y - 45) {
+            isAvailable = false;
+        } else if (path.startX === x && path.startY === y - 45) {
+            isAvailable = false;
+        } else if (path.startX === x + 45 && path.startY === y - 45) {
+            isAvailable = false;
+        } else if (path.startX === x - 45 && path.startY === y) {
+            isAvailable = false;
+        } else if (path.startX === x + 45 && path.startY === y) {
+            isAvailable = false;
+        } else if (path.startX === x - 45 && path.startY === y + 45) {
+            isAvailable = false;
+        } else if (path.startX === x && path.startY === y + 45) {
+            isAvailable = false;
+        } else if (path.startX === x + 45 && path.startY === y + 45) {
+            isAvailable = false;
+        }
+    });
+    return isAvailable;
+};
 
 
 
 
-
-
-
-
-
-
-
-
-
+module.exports = Game;

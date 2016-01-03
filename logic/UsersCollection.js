@@ -29,7 +29,7 @@ UsersCollection.prototype.remove = function(nickname) {
         }
     };
     if(index > -1) {
-        self.users.splice(index, 1);
+        this.users.splice(index, 1);
     }
 };
 

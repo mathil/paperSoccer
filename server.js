@@ -40,14 +40,10 @@ io.sockets.on('connection', function (socket) {
         if (usersCollection.isExists(data.nickname)) {
             isUserExists = true;
         } else {
-            console.log(data.nickname + " podłączył się do gry");
             socket.nickname = data.nickname;
-            
             user = new User(data.nickname, socket.id);
             usersCollection.add(user);
-            
-            console.log("Liczba graczy " + usersCollection.getSize());
-            console.log('socket id: ' + socket.id);
+            console.log(data.nickname + " podłączył się. Liczba użytkowników: " + usersCollection.getSize());
         }
         socket.emit('loginResponse', {
             isUserExists: isUserExists,
@@ -62,18 +58,32 @@ io.sockets.on('connection', function (socket) {
 
     //Obsługa rozłączenia użytkownika
     socket.on('disconnect', function () {
-        console.log(socket.nickname + " zamknął połączenie");
-        removeUser(socket.nickname);
+        var user = usersCollection.getByNickname(socket.nickname);
+        usersCollection.remove(socket.nickname);
+        console.log(user.getNickname() + " rozłączył się. Liczba użytkowników: " + usersCollection.getSize());
         io.sockets.emit('removeFromPlayersList', {
             nickname: socket.nickname
         });
-
+        if (user.getHasGame()) {
+            var game = getGameByRoomId(user.getRoomId());
+            io.to(game.getRoomId()).emit('stopGame', {
+                nickname: socket.nickname
+            });
+        }
     });
 
     //Wysłanie wiadomości na czacie globalnym
     socket.on('globalChatMessage', function (data) {
         io.sockets.emit('updateGlobalChat', {
-            message: socket.nickname + " " + getCurrentTimeAsString() + ": " + data.message
+            message: '[' + getCurrentTimeAsString() + '] ' + socket.nickname + ': ' + data.message
+        });
+    });
+    
+    //Wysłanie wiadomości na czacie gry
+    socket.on('gameChatMessage', function(data) {
+        var roomId = usersCollection.getByNickname(socket.nickname).getRoomId();
+        io.to(roomId).emit('updateGameChat', {
+            message: '[' + getCurrentTimeAsString() + ']' + socket.nickname + ': ' + data.message
         });
     });
 
@@ -89,18 +99,24 @@ io.sockets.on('connection', function (socket) {
     //Odpowiedź na zaproszenie do gry
     socket.on('inviteResponse', function (data) {
         var receiver = usersCollection.getByNickname(data.to);
+        var user = usersCollection.getByNickname(socket.nickname);
         if (data.accept) {
             var roomId = generateRoomId();
-            var game = new Game(receiver.getNickname(), socket.nickname, roomId);
+            var game = new Game(socket.nickname, receiver.getNickname(), roomId);
 
             games.push({roomId: roomId, game: game});
 
             io.sockets.connected[receiver.getId()].join(roomId);
             socket.join(roomId);
-            
-            
-            
+
+            receiver.setHasGame(true);
+            receiver.setRoomId(roomId);
+            user.setHasGame(true);
+            user.setRoomId(roomId);
+
+
             io.to(roomId).emit('startGame', {
+                startingUser: receiver.getNickname(),
                 gameParams: game.getStartGameParameters()
             });
         } else {
@@ -108,15 +124,35 @@ io.sockets.on('connection', function (socket) {
             });
         }
     });
-    
-    socket.on('validateMove', function(data) {
+
+    socket.on('validateMove', function (data) {
         console.log('walidacja ruchu');
         console.log(JSON.stringify(data));
-        
-        
-        
+
+        var gameRoomId = usersCollection.getByNickname(socket.nickname).getRoomId();
+        var game = getGameByRoomId(gameRoomId);
+        if (game.isValidMove(data.to.x, data.to.y)) {
+            io.to(gameRoomId).emit('moveIsValid', {//dodać walidacje kontynuacji ruchu
+                x: data.to.x,
+                y: data.to.y
+            });
+        } else {
+            io.to(gameRoomId).emit('moveIsNotValid');
+        }
+
     });
 });
+
+var getCurrentTimeAsString = function () {
+    var date = new Date();
+    var hour = date.getHours();
+    var minutes = date.getMinutes();
+    var seconds = date.getSeconds();
+
+    // hour = hour % 2 != 0 ? hour : '0' + hour;
+
+    return hour + ":" + minutes + ":" + seconds;
+};
 
 var getGameByRoomId = function (roomId) {
     var result = null;
@@ -138,3 +174,4 @@ var generateRoomId = function () {
     rooms.push(id);
     return id;
 };
+

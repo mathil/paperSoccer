@@ -5,7 +5,6 @@ var User = function(nickname, id) {
     this.hasGame = false;
 };
 
-module.exports = User;
 
 User.prototype.setRoomId = function(roomId) {
     this.roomId = roomId;
@@ -21,13 +20,14 @@ User.prototype.setHasGame = function(hasGame) {
 
 User.prototype.getNickname = function() {
     return this.nickname;
-}
+};
 
-
-User.prototype.hasGame = function() {
+User.prototype.getHasGame = function() {
     return this.hasGame;
 };
 
 User.prototype.getId = function() {
     return this.id;
 };
+
+module.exports = User;
