@@ -13,7 +13,7 @@ Socket.prototype.getSocket = function() {
 };
 
 Socket.prototype.listen = function() {
-    var self = this;
+    var that = this;
     
     //Aktualizacja czatu globalnego
     this.socket.on('updateGlobalChat', function (data) {
@@ -23,7 +23,8 @@ Socket.prototype.listen = function() {
         //Odpowiedź na żądanie zalogowania
     this.socket.on('loginResponse', function (data) {
         if (data.isUserExists) {
-            alert("Użytkownik o takiej nazwie jest już w systemie");
+            $("#login-message").html("Użytkownik o takiej nazwie jest już w systemie");
+//            that.socket.disconnected();
         } else {
             this.nickname = $("#login").val();
             $("#login-form").hide();
@@ -40,12 +41,12 @@ Socket.prototype.listen = function() {
     //Nowe zaproszenie od użytkownika
     this.socket.on('newInvite', function (data) {
         if (confirm(data.from + " zaprasza cię do gry. Akceptujesz?")) {
-            self.socket.emit('inviteResponse', {
+            that.socket.emit('inviteResponse', {
                 'accept': true,
                 'to': data.from
             });
         } else {
-            self.socket.emit('inviteResponse', {
+            that.socket.emit('inviteResponse', {
                 'accept': false,
                 'to': data.from
             });
@@ -77,13 +78,14 @@ Socket.prototype.listen = function() {
         enableGameArea();
         gameArea.init(data.gameParams);
         console.log('nickname ' + nickname);
-        console.log('data.startingUser ' + data.startingUser);
-        if(nickname === data.startingUser) {
+        console.log('data.gameParams.unlockedUser ' + data.gameParams.unlockedUser);
+        if(nickname === data.gameParams.hasMove) {
+            console.log('unlockarea');
             gameArea.unlockArea();
         } else {
+            console.log('lockarea');
             gameArea.lockArea();
         }
-        
         gameArea.drawArea();
     });
     
@@ -92,12 +94,20 @@ Socket.prototype.listen = function() {
         disableGameArea();
     });
     
-    this.socket.on('moveIsValid', function(data) {
-        gameArea.drawMove(data.x, data.y);
-    });
-    
-    this.socket.on('moveIsNotValid', function(data) {
+    this.socket.on('validateResponse', function(data) {
+        console.log('validateResp ' + data.isValid);
         
+        if(!data.isValid)
+            return;
+        console.log('hasMove ' + data.hasMove);
+        gameArea.drawMove(data.x, data.y, data.lineColor);
+        if(data.hasMove === this.nickname) {
+            console.log('unlock');
+            gameArea.unlockArea();
+        } else {
+            console.log('lock');
+            gameArea.lockArea();
+        }
     });
     
     this.socket.on('updateGameChat', function(data) {

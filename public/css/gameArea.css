@@ -21,48 +21,34 @@
 
 }
 
-
-#game-info {
-    border: 1px solid black;
-    width: 65%;
-    margin: auto;
-    left: 2%;
-    position: absolute;
-    top: 10%;
-    font-size: 150%;
-}
-
 #score-container {
-    display: flex;
     text-align: center;
-    font-size: 200%;
     color: #ffffff;
-    margin: auto;
-    position: absolute;
+    font-size: 200%;
 }
 
 #player-a-nick {
+    
 }
 
 #player-b-nick {
-    padding-left: 5%;
 }
 
 #score {
-    padding-left: 5%;
+}
+
+#game-buttons {
+    margin: auto;
+    width: 90%;
+    top: 10%;
+    /*position: absolute;*/
 }
 
 #remove-move-button {
-    position: absolute;
-    margin: auto;
-    right: 6%;
-    top: 7%;
-    width: 10%;
-    height: 5%;
 }
 
 #game-canvas {
-    border: 1px solid black;
+    border: 2px solid white;
     background-color: #009933;
     width: 90%;
     height: 80%;

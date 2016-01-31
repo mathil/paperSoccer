@@ -44,6 +44,7 @@ var addListeners = function () {
 };
 
 $(document).ready(function () {
+//    $("#global-chat").show();
 //    enableGameArea();
 //    $("#login-form").hide();
 //    gameArea.setBasicParameters({

@@ -7,7 +7,6 @@ var GameArea = function () {
 };
 
 GameArea.prototype.init = function (params, nickname) {
-    console.log(JSON.stringify(params));
     this.playerA = params.playerA;
     this.playerB = params.playerB;
     this.playerAColorLine = params.playerAColorLine;
@@ -15,7 +14,13 @@ GameArea.prototype.init = function (params, nickname) {
     this.lastPoint = params.lastPoint;
     this.canvas = null;
     this.context = null;
-    this.lock = null;
+    
+//    if(params.hasMove === nickname) {
+//        this.lock = false;
+//    } else {
+//        this.lock = true;
+//    }
+    
     this.initGameArea();
     that = this;
 };
@@ -87,6 +92,7 @@ GameArea.prototype.drawArea = function () {
     this.context.stroke();
 
     this.canvas.onclick = function (evt) {
+        console.log(that.lock);
         if (that.lock) {
             return;
         }
@@ -94,7 +100,19 @@ GameArea.prototype.drawArea = function () {
         var rect = that.canvas.getBoundingClientRect();
         var x = Math.round((evt.clientX - rect.left) * (that.canvas.width / that.canvas.offsetWidth));
         var y = Math.round((evt.clientY - rect.top) * (that.canvas.height / that.canvas.offsetHeight));
-        var nearest = that.getNearestNode(x, y);
+        
+        console.log('x ' + x);
+        console.log('y ' + y);
+        
+        var nearestNode = that.getNearestNode(x, y);
+        
+        console.log('nearestNode');
+        console.log(nearestNode);
+
+        if (!((that.lastPoint.x - 45 <= nearestNode.x && that.lastPoint.x + 45 >= nearestNode.x)
+                && (that.lastPoint.y - 45 <= nearestNode.y && that.lastPoint.y + 45 >= nearestNode.y))) {
+            return;
+        }
 
         SOCKET.getSocket().emit('validateMove', {
             from: {
@@ -102,13 +120,13 @@ GameArea.prototype.drawArea = function () {
                 y: that.lastPoint.y
             },
             to: {
-                x: nearest.x,
-                y: nearest.y
+                x: nearestNode.x,
+                y: nearestNode.y
             }
         });
     };
-
 };
+
 
 GameArea.prototype.fillNodes = function () {
     var nodes = [];
@@ -117,6 +135,8 @@ GameArea.prototype.fillNodes = function () {
             nodes.push({x: i, y: j});
         }
     }
+    nodes.push({x: 45, y: 225});
+    nodes.push({x: 585, y: 225});
     return nodes;
 };
 
@@ -134,31 +154,27 @@ GameArea.prototype.drawLine = function () {
 };
 
 GameArea.prototype.lockArea = function () {
-    console.log('lockarea');
     this.lock = true;
 };
 
 GameArea.prototype.unlockArea = function () {
-    console.log('unlockarea');
     this.lock = false;
 };
 
 GameArea.prototype.initGameArea = function () {
     $("#player-a-nick").html(this.playerA);
+    $("#player-a-nick").css('color', this.playerAColorLine);
     $("#player-b-nick").html(this.playerB);
+    $("#player-b-nick").css('color', this.playerBColorLine);
     $("#score").html("0:0");
 };
 
-GameArea.prototype.drawMove = function(x, y) {
+GameArea.prototype.drawMove = function (x, y, lineColor) {
+    this.context.strokeStyle = lineColor;
     this.context.beginPath();
     this.context.moveTo(this.lastPoint.x, this.lastPoint.y);
     this.context.lineTo(x, y);
     this.context.stroke();
     this.lastPoint.x = x;
     this.lastPoint.y = y;
-    if(!this.lock) {
-        this.lockArea();
-    } else {
-        this.unlockArea();
-    }
 };

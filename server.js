@@ -78,9 +78,9 @@ io.sockets.on('connection', function (socket) {
             message: '[' + getCurrentTimeAsString() + '] ' + socket.nickname + ': ' + data.message
         });
     });
-    
+
     //Wysłanie wiadomości na czacie gry
-    socket.on('gameChatMessage', function(data) {
+    socket.on('gameChatMessage', function (data) {
         var roomId = usersCollection.getByNickname(socket.nickname).getRoomId();
         io.to(roomId).emit('updateGameChat', {
             message: '[' + getCurrentTimeAsString() + ']' + socket.nickname + ': ' + data.message
@@ -114,31 +114,23 @@ io.sockets.on('connection', function (socket) {
             user.setHasGame(true);
             user.setRoomId(roomId);
 
-
             io.to(roomId).emit('startGame', {
-                startingUser: receiver.getNickname(),
                 gameParams: game.getStartGameParameters()
             });
         } else {
-            io.to(receiver.getId()).emit('inviteRefused', {
-            });
+            io.to(receiver.getId()).emit('inviteRefused');
         }
     });
 
     socket.on('validateMove', function (data) {
-        console.log('walidacja ruchu');
-        console.log(JSON.stringify(data));
-
+//        console.log('walidacja ruchu');
+//        console.log(JSON.stringify(data));
         var gameRoomId = usersCollection.getByNickname(socket.nickname).getRoomId();
         var game = getGameByRoomId(gameRoomId);
-        if (game.isValidMove(data.to.x, data.to.y)) {
-            io.to(gameRoomId).emit('moveIsValid', {//dodać walidacje kontynuacji ruchu
-                x: data.to.x,
-                y: data.to.y
-            });
-        } else {
-            io.to(gameRoomId).emit('moveIsNotValid');
-        }
+
+        var validate = game.validateMove(data.to.x, data.to.y);
+//        console.log(validate);
+        io.to(gameRoomId).emit('validateResponse', validate);
 
     });
 });
@@ -174,4 +166,3 @@ var generateRoomId = function () {
     rooms.push(id);
     return id;
 };
-

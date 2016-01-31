@@ -22,7 +22,8 @@ var Game = function (playerA, playerB, roomId) {
     this.playerBColorLine = "";
     this.usedNodes = this.initNodesArray();
     this.usedPatches = [];
-
+    this.hasMove = playerA;
+    console.log('hasMove ' + this.hasMove);
     this.lastPoint = {// domyślnie środek planszy
         x: 315,
         y: 225
@@ -67,65 +68,90 @@ Game.prototype.getStartGameParameters = function () {
         playerB: this.playerB,
         playerAColorLine: this.playerAColorLine,
         playerBColorLine: this.playerBColorLine,
-        lastPoint: this.lastPoint
+        lastPoint: this.lastPoint,
+        hasMove: this.hasMove
     };
 };
 
-Game.prototype.haveNextMove = function () {
+Game.prototype.validateMove = function (x, y) {
+    var response = null;
+
+    if (this.isValidMove(x, y)) {
+        response = {
+            isValid: true,
+            hasMove: this.hasMove,
+            x: this.lastPoint.x,
+            y: this.lastPoint.y,
+            lineColor: this.hasMove === this.playerA ? this.playerAColorLine : this.playerBColorLine
+        };
+    } else {
+        response = {
+            isValid: false,
+            hasMove: this.hasMove,
+        };
+    }
+    return response;
 };
 
-
 Game.prototype.isValidMove = function (x, y) {
-    if (!((that.lastPoint.x - 45 <= x && that.lastPoint.x + 45 >= x)
-            && (that.lastPoint.y - 45 <= y && that.lastPoint.y + 45 >= y))) {
-        console.log('98');
-        return false;
-    }
 
+    //Sprawdzenie czy ścieżna nie jest już zarejestrowana
     if (this.validatePath(this.lastPoint.x, this.lastPoint.y, x, y)) {
-        console.log('sciezka uzyta');
         return false;
     }
 
-    this.usedPatches.push(
-            {
-                startX: this.lastPoint.x,
-                startY: this.lastPoint.y,
-                endX: x,
-                endY: y
-            }
-    );
+    //Sprawdzenie czy gracz posiada pole manewru
+    if (!this.isMoveAvailable(x, y)) {
+        return false;
+    }
+
+    //Sprawdzenie czy węzeł pozwala na kontynuowanie ruchu, jeśli nie to zmiana gracza
+    this.setNextMoveUser(x, y);
 
 
-    that.lastPoint.x = x;
-    that.lastPoint.y = y;
+    this.usedPatches.push({
+        startX: this.lastPoint.x,
+        startY: this.lastPoint.y,
+        endX: x,
+        endY: y
+    });
+
+    this.lastPoint.x = x;
+    this.lastPoint.y = y;
+
     return true;
 
 };
+
 
 Game.prototype.initNodesArray = function () {
     var nodes = [];
     for (var i = 90; i <= 540; i += 45) {
         for (var j = 45; j <= 405; j += 45) {
-            nodes.push({x: i, y: j, used: false});
+            nodes.push(
+                    {
+                        x: i,
+                        y: j,
+                        used: (i === 90 || i === 540) || (j === 45 || j === 405) ? true : false
+                    }
+            );
         }
     }
     return nodes;
 };
 
-
-Game.prototype.isNodeUsed = function (x, y) {
-    var used = false;
-    that.usedNodes.forEach(function (node) {
-        if (node.x === x && node.y === y) {
-            if (node.used)
-                return true;
-            return false;
+Game.prototype.setNodeAsUsed = function () {
+    this.usedNodes.forEach(function (node) {
+        if (node.x === that.lastPoint.x && node.y === that.lastPoint.y) {
+            if (node.used) {
+                that.changeMovePlayer();
+            } else {
+                node.used = true;
+            }
+            return;
         }
     });
-    return used;
 };
-
 
 Game.prototype.validatePath = function (startX, startY, endX, endY) {
     var firstCondition = false;
@@ -147,44 +173,36 @@ Game.prototype.validatePath = function (startX, startY, endX, endY) {
     return firstCondition || secondCondition;
 };
 
-Game.prototype.validNode = function () {
-    if (this.isNodeUsed(this.lastPoint.x, this.lastPoint.y)) {
-        if (this.isMoveAvailable()) {
-            return true;
-        }
-    }
-    return false;
+Game.prototype.isMoveAvailable = function (x, y) {
+    //TO DO
+    return true;
 };
 
-Game.prototype.isMoveAvailable = function () {
-    var x = this.lastPoint.x;
-    var y = this.lastPoint.y;
-
-    var isAvailable = true;
-
-    this.usedPatches.forEach(function (path) {
-        if (path.startX === x - 45 && path.startY === y - 45) {
-            isAvailable = false;
-        } else if (path.startX === x && path.startY === y - 45) {
-            isAvailable = false;
-        } else if (path.startX === x + 45 && path.startY === y - 45) {
-            isAvailable = false;
-        } else if (path.startX === x - 45 && path.startY === y) {
-            isAvailable = false;
-        } else if (path.startX === x + 45 && path.startY === y) {
-            isAvailable = false;
-        } else if (path.startX === x - 45 && path.startY === y + 45) {
-            isAvailable = false;
-        } else if (path.startX === x && path.startY === y + 45) {
-            isAvailable = false;
-        } else if (path.startX === x + 45 && path.startY === y + 45) {
-            isAvailable = false;
+Game.prototype.setNextMoveUser = function (x, y) {
+    console.log('x ' + x);
+    console.log('y ' + y);
+    this.usedNodes.forEach(function (node) {
+        if (node.x === x && node.y === y) {
+            console.log('node.x=' + node.x);
+            console.log('node.y=' + node.y);
+            console.log('node.used=' + node.used);
+            if (!node.used) {
+                that.changeNextMoveUser();
+                node.used = true;
+            }
+            return;
         }
     });
-    return isAvailable;
+
 };
 
-
+Game.prototype.changeNextMoveUser = function () {
+    if (this.hasMove === this.playerA) {
+        this.hasMove = this.playerB;
+    } else {
+        this.hasMove = this.playerA;
+    }
+};
 
 
 module.exports = Game;
