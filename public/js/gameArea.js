@@ -14,14 +14,8 @@ GameArea.prototype.init = function (params, nickname) {
     this.lastPoint = params.lastPoint;
     this.canvas = null;
     this.context = null;
-    
-//    if(params.hasMove === nickname) {
-//        this.lock = false;
-//    } else {
-//        this.lock = true;
-//    }
-    
     this.initGameArea();
+    this.addListeners();
     that = this;
 };
 
@@ -29,8 +23,118 @@ GameArea.prototype.init = function (params, nickname) {
 /**
  * Rysowanie planszy gry
  */
-GameArea.prototype.drawArea = function () {
+GameArea.prototype.initArea = function () {
     this.nodes = this.fillNodes();
+    this.canvas = document.getElementById('game-canvas');
+    this.context = this.canvas.getContext('2d');
+
+    this.drawArea();
+
+    this.canvas.onclick = function (evt) {
+        if (that.lock) {
+            return;
+        }
+
+        var rect = that.canvas.getBoundingClientRect();
+        var x = Math.round((evt.clientX - rect.left) * (that.canvas.width / that.canvas.offsetWidth));
+        var y = Math.round((evt.clientY - rect.top) * (that.canvas.height / that.canvas.offsetHeight));
+
+
+        var nearestNode = that.getNearestNode(x, y);
+
+        if (!((that.lastPoint.x - 45 <= nearestNode.x && that.lastPoint.x + 45 >= nearestNode.x)
+                && (that.lastPoint.y - 45 <= nearestNode.y && that.lastPoint.y + 45 >= nearestNode.y))) {
+            return;
+        }
+
+        SOCKET.getSocket().emit('validateMove', {
+            from: {
+                x: that.lastPoint.x,
+                y: that.lastPoint.y
+            },
+            to: {
+                x: nearestNode.x,
+                y: nearestNode.y
+            }
+        });
+    };
+};
+
+
+GameArea.prototype.fillNodes = function () {
+    var nodes = [];
+    for (var i = 90; i <= 540; i += 45) {
+        for (var j = 45; j <= 405; j += 45) {
+            nodes.push({x: i, y: j});
+        }
+    }
+    nodes.push({x: 45, y: 180});
+    nodes.push({x: 45, y: 225});
+    nodes.push({x: 45, y: 270});
+    nodes.push({x: 585, y: 180});
+    nodes.push({x: 585, y: 225});
+    nodes.push({x: 585, y: 270});
+    return nodes;
+};
+
+GameArea.prototype.getNearestNode = function (x, y) {
+    var nearestNode;
+    this.nodes.forEach(function (node) {
+        if ((x < node.x + 22 && x > node.x - 23) && (y < node.y + 22 && y > node.y - 23))
+            nearestNode = node;
+    });
+    return nearestNode;
+};
+
+GameArea.prototype.drawLine = function () {
+
+};
+
+GameArea.prototype.lockArea = function () {
+    this.lock = true;
+};
+
+GameArea.prototype.unlockArea = function () {
+    this.lock = false;
+};
+
+GameArea.prototype.setMoveIcon = function (hasMove) {
+    if (hasMove === this.playerA) {
+        $("#player-a-move-icon").css('visibility', 'visible');
+        $("#player-b-move-icon").css('visibility', 'hidden');
+    } else if (hasMove === this.playerB) {
+        $("#player-a-move-icon").css('visibility', 'hidden');
+        $("#player-b-move-icon").css('visibility', 'visible');
+
+    }
+}
+
+GameArea.prototype.initGameArea = function () {
+    $("#player-a-nick").html(this.playerA);
+    $("#player-a-nick").css('color', this.playerAColorLine);
+    $("#player-b-nick").html(this.playerB);
+    $("#player-b-nick").css('color', this.playerBColorLine);
+    $("#score").html("0:0");
+};
+
+GameArea.prototype.drawMove = function (x, y, lineColor) {
+    this.context.strokeStyle = lineColor;
+    this.context.beginPath();
+    this.context.moveTo(this.lastPoint.x, this.lastPoint.y);
+    this.context.lineTo(x, y);
+    this.context.stroke();
+    this.lastPoint.x = x;
+    this.lastPoint.y = y;
+};
+
+GameArea.prototype.isGoalMove = function (player, score, resetGameParams) {
+    $("#score").html(score);
+    this.clearArea();
+    this.lastPoint = resetGameParams.lastPoint;
+    console.log(resetGameParams.lastPoint);
+};
+
+GameArea.prototype.drawArea = function () {
     this.canvas = document.getElementById('game-canvas');
     this.context = this.canvas.getContext('2d');
 
@@ -41,7 +145,6 @@ GameArea.prototype.drawArea = function () {
     this.context.lineWidth = 2;
     this.context.lineCap = 'butt';
     this.context.fillStyle = "#FFFFFF";
-
 
     this.context.beginPath();
     this.context.moveTo(90, 45);
@@ -90,91 +193,38 @@ GameArea.prototype.drawArea = function () {
     this.context.fillRect(540, 225, 2, 2);
 
     this.context.stroke();
+};
 
-    this.canvas.onclick = function (evt) {
-        console.log(that.lock);
-        if (that.lock) {
-            return;
-        }
-
-        var rect = that.canvas.getBoundingClientRect();
-        var x = Math.round((evt.clientX - rect.left) * (that.canvas.width / that.canvas.offsetWidth));
-        var y = Math.round((evt.clientY - rect.top) * (that.canvas.height / that.canvas.offsetHeight));
-        
-        console.log('x ' + x);
-        console.log('y ' + y);
-        
-        var nearestNode = that.getNearestNode(x, y);
-        
-        console.log('nearestNode');
-        console.log(nearestNode);
-
-        if (!((that.lastPoint.x - 45 <= nearestNode.x && that.lastPoint.x + 45 >= nearestNode.x)
-                && (that.lastPoint.y - 45 <= nearestNode.y && that.lastPoint.y + 45 >= nearestNode.y))) {
-            return;
-        }
-
-        SOCKET.getSocket().emit('validateMove', {
-            from: {
-                x: that.lastPoint.x,
-                y: that.lastPoint.y
-            },
-            to: {
-                x: nearestNode.x,
-                y: nearestNode.y
-            }
-        });
-    };
+GameArea.prototype.clearArea = function(params) {
+    this.nodes = this.fillNodes();
+    this.context.clearRect(0,0, this.canvas.width, this.canvas.height);
+    this.initArea();
 };
 
 
-GameArea.prototype.fillNodes = function () {
-    var nodes = [];
-    for (var i = 90; i <= 540; i += 45) {
-        for (var j = 45; j <= 405; j += 45) {
-            nodes.push({x: i, y: j});
-        }
-    }
-    nodes.push({x: 45, y: 225});
-    nodes.push({x: 585, y: 225});
-    return nodes;
-};
 
-GameArea.prototype.getNearestNode = function (x, y) {
-    var nearestNode;
-    this.nodes.forEach(function (node) {
-        if ((x < node.x + 22 && x > node.x - 23) && (y < node.y + 22 && y > node.y - 23))
-            nearestNode = node;
+
+
+GameArea.prototype.addListeners = function () {
+    $(document).on('click', '#leave-game', function () {
+        if (confirm("czy chcesz opuścić grę?")) {
+            SOCKET.getSocket().emit('leaveGame');
+            disableGameArea();
+            enableGlobalChat();
+        } else {
+
+        }
     });
-    return nearestNode;
 };
 
-GameArea.prototype.drawLine = function () {
 
-};
 
-GameArea.prototype.lockArea = function () {
-    this.lock = true;
-};
 
-GameArea.prototype.unlockArea = function () {
-    this.lock = false;
-};
 
-GameArea.prototype.initGameArea = function () {
-    $("#player-a-nick").html(this.playerA);
-    $("#player-a-nick").css('color', this.playerAColorLine);
-    $("#player-b-nick").html(this.playerB);
-    $("#player-b-nick").css('color', this.playerBColorLine);
-    $("#score").html("0:0");
-};
 
-GameArea.prototype.drawMove = function (x, y, lineColor) {
-    this.context.strokeStyle = lineColor;
-    this.context.beginPath();
-    this.context.moveTo(this.lastPoint.x, this.lastPoint.y);
-    this.context.lineTo(x, y);
-    this.context.stroke();
-    this.lastPoint.x = x;
-    this.lastPoint.y = y;
-};
+
+
+
+
+
+

@@ -1,26 +1,26 @@
 
-var Socket = function(nickname) {
-  this.socket = null;
-  this.nickname = nickname;
+var Socket = function (nickname) {
+    this.socket = null;
+    this.nickname = nickname;
 };
 
-Socket.prototype.connect = function() {
-  this.socket = io.connect('http://localhost:8080');  
+Socket.prototype.connect = function () {
+    this.socket = io.connect('http://localhost:8080');
 };
 
-Socket.prototype.getSocket = function() {
+Socket.prototype.getSocket = function () {
     return this.socket;
 };
 
-Socket.prototype.listen = function() {
+Socket.prototype.listen = function () {
     var that = this;
-    
+
     //Aktualizacja czatu globalnego
     this.socket.on('updateGlobalChat', function (data) {
         $("#global-chat-area").val($("#global-chat-area").val() + '\n' + data.message);
     });
-    
-        //Odpowiedź na żądanie zalogowania
+
+    //Odpowiedź na żądanie zalogowania
     this.socket.on('loginResponse', function (data) {
         if (data.isUserExists) {
             $("#login-message").html("Użytkownik o takiej nazwie jest już w systemie");
@@ -40,17 +40,21 @@ Socket.prototype.listen = function() {
 
     //Nowe zaproszenie od użytkownika
     this.socket.on('newInvite', function (data) {
-        if (confirm(data.from + " zaprasza cię do gry. Akceptujesz?")) {
-            that.socket.emit('inviteResponse', {
-                'accept': true,
-                'to': data.from
-            });
-        } else {
-            that.socket.emit('inviteResponse', {
-                'accept': false,
-                'to': data.from
-            });
-        }
+        showConfirmDialog({
+            message: data.from + " zaprasza cię do gry. Akceptujesz?",
+            confirmCallback: function () {
+                that.socket.emit('inviteResponse', {
+                    'accept': true,
+                    'to': data.from
+                });
+            },
+            cancelCallback: function () {
+                that.socket.emit('inviteResponse', {
+                    'accept': false,
+                    'to': data.from
+                });
+            }
+        });
     });
 
     //Obsługa zdarzenia usunięcia użytkownika
@@ -79,42 +83,53 @@ Socket.prototype.listen = function() {
         gameArea.init(data.gameParams);
         console.log('nickname ' + nickname);
         console.log('data.gameParams.unlockedUser ' + data.gameParams.unlockedUser);
-        if(nickname === data.gameParams.hasMove) {
+        if (nickname === data.gameParams.hasMove) {
             console.log('unlockarea');
             gameArea.unlockArea();
         } else {
             console.log('lockarea');
             gameArea.lockArea();
         }
-        gameArea.drawArea();
+        gameArea.initArea();
     });
-    
-    this.socket.on('stopGame', function(data){
+
+    this.socket.on('stopGame', function (data) {
         alert(data.nickname + " opuścił grę");
         disableGameArea();
     });
-    
-    this.socket.on('validateResponse', function(data) {
-        console.log('validateResp ' + data.isValid);
-        
-        if(!data.isValid)
+
+    this.socket.on('validateResponse', function (data) {
+
+        if (!data.isValid)
             return;
-        console.log('hasMove ' + data.hasMove);
+
         gameArea.drawMove(data.x, data.y, data.lineColor);
-        if(data.hasMove === this.nickname) {
-            console.log('unlock');
+
+        if (data.isGoalMove) {
+            gameArea.isGoalMove(data.goalFor, data.score, data.resetGameParams);
+        }
+        if (data.hasMove === this.nickname) {
             gameArea.unlockArea();
         } else {
-            console.log('lock');
             gameArea.lockArea();
         }
+        gameArea.setMoveIcon(data.hasMove);
     });
-    
-    this.socket.on('updateGameChat', function(data) {
+
+    this.socket.on('updateGameChat', function (data) {
         $("#game-chat").val($("#game-chat").val() + '\n' + data.message);
     });
+
+    this.socket.on('opponentHasLeaveGame', function () {
+        alert('przeciwnik opuścił grę');
+        disableGameArea();
+        enableGlobalChat();
+    });
     
-    
+    this.socket.on('nextGameRequest', function(data) {
+       alert(data.status);
+    });
+
 };
 
 var enableGameArea = function () {
@@ -122,10 +137,10 @@ var enableGameArea = function () {
     $("#game-area").show();
 };
 
-var disableGameArea = function() {
+var disableGameArea = function () {
     $("#global-chat").show();
     $("#game-area").hide();
-    
+
 }
 
 var enableGlobalChat = function () {

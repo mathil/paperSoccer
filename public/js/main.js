@@ -40,8 +40,21 @@ var addListeners = function () {
         });
     });
     
+    $("#show-dialog").click(function() {
+        showConfirmDialog({
+            message: "To jest test dialogu",
+            confirmCallback: function() {
+                console.log("confirm");
+            },
+            cancelCallback: function() {
+                console.log("close");
+            }
+        });
+    });
+    
     
 };
+
 
 $(document).ready(function () {
 //    $("#global-chat").show();
@@ -53,7 +66,7 @@ $(document).ready(function () {
 //        playerAColorLine: '#fffff',
 //        playerBColorLine: '#fffff',
 //    });
-//    gameArea.drawArea();
+//    gameArea.initArea();
     addListeners();
 });
 

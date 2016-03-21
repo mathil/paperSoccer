@@ -18,3 +18,8 @@ button {
   background-color: transparent;
   font-size: 1em;
 }
+
+#terms {
+    background-color: white;
+    height: 10%;
+}

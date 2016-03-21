@@ -123,16 +123,46 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('validateMove', function (data) {
-//        console.log('walidacja ruchu');
-//        console.log(JSON.stringify(data));
         var gameRoomId = usersCollection.getByNickname(socket.nickname).getRoomId();
         var game = getGameByRoomId(gameRoomId);
 
         var validate = game.validateMove(data.to.x, data.to.y);
-//        console.log(validate);
         io.to(gameRoomId).emit('validateResponse', validate);
 
     });
+
+    socket.on('leaveGame', function () {
+        console.log('leaveGame');
+        var gameRoomId = usersCollection.getByNickname(socket.nickname).getRoomId();
+        var game = getGameByRoomId(gameRoomId);
+        var opponent = usersCollection.getByNickname(game.getOpponent(socket.nickname));
+        io.to(opponent.getId()).emit('opponentHasLeaveGame');
+    });
+
+    socket.on('nextGameRequest', function (data) {
+//        var user = usersCollection.getByNickname(socket.nickname);
+//        var gameRoomId = user.getRoomId();
+//        var game = getGameByRoomId(gameRoomId);
+//
+//        if (data.nextGameApproved) {
+//            game.approvedNextGame(socket.nickname);
+//            if (game.checkIfOpponentApprovedNextGame(socket.nickname) === null) {
+//                io.to(user.getId()).emit('nextGameResponse', {status: 'waitingForOpponentDecision'});
+//            } else if (game.checkIfOpponentApprovedNextGame(socket.nickname) === true) {
+//                io.to(user.getId()).emit('nextGameResponse', {status: 'opponentApprovedNextGame'});
+//            } else if (game.checkIfOpponentApprovedNextGame(socket.nickname) === false) {
+//                io.to(user.getId()).emit('nextGameResponse', {status: 'opponentNotApprovedNextGame'});
+//            }
+//        } else {
+//            game.discardNextGame(socket.nickname);
+//            var opponent = game.getOpponent(socket.nickname);
+//        }
+
+//        game.resetGame();
+        
+
+    });
+
 });
 
 var getCurrentTimeAsString = function () {
@@ -141,7 +171,7 @@ var getCurrentTimeAsString = function () {
     var minutes = date.getMinutes();
     var seconds = date.getSeconds();
 
-    // hour = hour % 2 != 0 ? hour : '0' + hour;
+    hour = hour % 2 != 0 ? hour : '0' + hour;
 
     return hour + ":" + minutes + ":" + seconds;
 };
