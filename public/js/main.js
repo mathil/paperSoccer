@@ -41,13 +41,13 @@ var addListeners = function () {
     });
     
     $("#show-dialog").click(function() {
-        showConfirmDialog({
+        Dialog.showConfirmDialog({
             message: "To jest test dialogu",
             confirmCallback: function() {
-                console.log("confirm");
+                //console.log("confirm");
             },
             cancelCallback: function() {
-                console.log("close");
+                //console.log("close");
             }
         });
     });

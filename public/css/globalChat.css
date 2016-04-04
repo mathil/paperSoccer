@@ -8,6 +8,12 @@
 
 }
 
+.player-has-game {
+    background-image: url(../img/small_ball.png);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
 #chat-area {
     background-color: #00BF4D;
     width: 65%;

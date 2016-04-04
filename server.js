@@ -92,33 +92,48 @@ io.sockets.on('connection', function (socket) {
         console.log("Zaproszenie do gry od " + data.from + " dla " + data.to);
 
         var receiver = usersCollection.getByNickname(data.to);
-        io.to(receiver.getId()).emit('newInvite', {from: data.from});
 
+        if (receiver.getHasGame()) {
+            io.to(socket.id).emit('receiverHasGame', {receiver: receiver.getNickname()});
+        } else {
+            io.to(receiver.getId()).emit('newInvite', {from: data.from});
+        }
     });
 
     //Odpowiedź na zaproszenie do gry
     socket.on('inviteResponse', function (data) {
-        var receiver = usersCollection.getByNickname(data.to);
+        var opponent = usersCollection.getByNickname(data.to);
         var user = usersCollection.getByNickname(socket.nickname);
         if (data.accept) {
             var roomId = generateRoomId();
-            var game = new Game(socket.nickname, receiver.getNickname(), roomId);
+            var game = new Game(socket.nickname, opponent.getNickname(), roomId);
 
             games.push({roomId: roomId, game: game});
 
-            io.sockets.connected[receiver.getId()].join(roomId);
+            io.sockets.connected[opponent.getId()].join(roomId);
             socket.join(roomId);
 
-            receiver.setHasGame(true);
-            receiver.setRoomId(roomId);
+            opponent.setHasGame(true);
+            opponent.setRoomId(roomId);
             user.setHasGame(true);
             user.setRoomId(roomId);
+
+            io.sockets.emit('updatePlayersGameStatus', [
+                {
+                    nickname: opponent.getNickname(),
+                    hasGame: opponent.getHasGame()
+                },
+                {
+                    nickname: user.getNickname(),
+                    hasGame: user.getHasGame()
+                }
+            ]);
 
             io.to(roomId).emit('startGame', {
                 gameParams: game.getStartGameParameters()
             });
         } else {
-            io.to(receiver.getId()).emit('inviteRefused');
+            io.to(opponent.getId()).emit('inviteRefused');
         }
     });
 
@@ -133,10 +148,23 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('leaveGame', function () {
         console.log('leaveGame');
-        var gameRoomId = usersCollection.getByNickname(socket.nickname).getRoomId();
+        var user = usersCollection.getByNickname(socket.nickname);
+        user.setHasGame(false);
+        var gameRoomId = user.getRoomId();
         var game = getGameByRoomId(gameRoomId);
         var opponent = usersCollection.getByNickname(game.getOpponent(socket.nickname));
+        opponent.setHasGame(false);
         io.to(opponent.getId()).emit('opponentHasLeaveGame');
+        io.sockets.emit('updatePlayersGameStatus', [
+            {
+                nickname: user.getNickname(),
+                hasGame: user.getHasGame()
+            },
+            {
+                nickname: opponent.getNickname(),
+                hasGame: opponent.getHasGame()
+            }
+        ]);
     });
 
     socket.on('nextGameRequest', function (data) {
@@ -159,7 +187,7 @@ io.sockets.on('connection', function (socket) {
 //        }
 
 //        game.resetGame();
-        
+
 
     });
 

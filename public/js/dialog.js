@@ -1,26 +1,34 @@
 
-var showConfirmDialog = function(params) {
-    var dialog = $("#dialog");
-    $("#dialog-message").html(params.message);
+var Dialog = {};
+
+Dialog.showConfirmDialog = function (params) {
+    var dialog = $("#confirm-dialog");
+    $("#confirm-dialog-message").html(params.message);
     dialog.show();
-    
-    $("#dialog").on('click', '#dialog-confirm-button', function(){
-        params.confirmCallback();
+    $("#confirm-dialog").on('click', '#dialog-confirm-button', function (evt) {
+        if (params.confirmCallback !== undefined || params.confirmCallback !== null)
+            params.confirmCallback();
         dialog.hide();
+        $(this).off(evt);
     });
-    
-    $("#dialog").on('click', '#dialog-cancel-button', function(){
-        params.cancelCallback();
+
+    $("#confirm-dialog").on('click', '#dialog-cancel-button', function (evt) {
+        if (params.cancelCallback !== undefined || params.cancelCallback !== null)
+            params.cancelCallback();
         dialog.hide();
+        $(this).off(evt);
     });
+
 };
 
-var showInfoDialog = function(params) {
-    
-    $("#dialog").on('click', '#dialog-close-button', function(){
-        params.cancelCallback();
+Dialog.showInfoDialog = function (params) {
+    var dialog = $("#info-dialog");
+    $("#info-dialog-message").html(params.message);
+    dialog.show();
+    $("#info-dialog").on('click', '#dialog-close-button', function (evt) {
+        if (params.closeCallback !== undefined && params.closeCallback !== null)
+            params.closeCallback();
         dialog.hide();
+        $(this).off(evt);
     });
 };
-
-

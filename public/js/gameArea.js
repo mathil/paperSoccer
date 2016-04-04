@@ -131,7 +131,7 @@ GameArea.prototype.isGoalMove = function (player, score, resetGameParams) {
     $("#score").html(score);
     this.clearArea();
     this.lastPoint = resetGameParams.lastPoint;
-    console.log(resetGameParams.lastPoint);
+    //console.log(resetGameParams.lastPoint);
 };
 
 GameArea.prototype.drawArea = function () {
@@ -195,36 +195,24 @@ GameArea.prototype.drawArea = function () {
     this.context.stroke();
 };
 
-GameArea.prototype.clearArea = function(params) {
+GameArea.prototype.clearArea = function (params) {
     this.nodes = this.fillNodes();
-    this.context.clearRect(0,0, this.canvas.width, this.canvas.height);
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.initArea();
 };
 
-
-
-
-
 GameArea.prototype.addListeners = function () {
     $(document).on('click', '#leave-game', function () {
-        if (confirm("czy chcesz opuścić grę?")) {
-            SOCKET.getSocket().emit('leaveGame');
-            disableGameArea();
-            enableGlobalChat();
-        } else {
 
-        }
+        Dialog.showConfirmDialog({
+            message: "Czy chcesz opuścić grę?",
+            confirmCallback: function () {
+                console.log('leave game');
+                SOCKET.getSocket().emit('leaveGame');
+                disableGameArea();
+                enableGlobalChat();
+            },
+            cancelCallback: null
+        });
     });
 };
-
-
-
-
-
-
-
-
-
-
-
-

@@ -32,7 +32,13 @@ Socket.prototype.listen = function () {
 
             var content = "";
             (data.players).forEach(function (player) {
-                content += "<button class='player' id='" + player.nickname + "'>" + player.nickname + "</button>";
+                content += "<button class='player' id='" + player.nickname + "'>" + player.nickname;
+                if (player.hasGame) {
+                    content += " <img id='" + player.nickname + "_hasGame' src='../img/small_ball.png'/>";
+                } else {
+                    content += " <img id='" + player.nickname + "_hasGame' src='../img/small_ball.png' style='display: none;'/>";
+                }
+                content += "</button>";
             });
             $("#players").html(content);
         }
@@ -40,9 +46,10 @@ Socket.prototype.listen = function () {
 
     //Nowe zaproszenie od użytkownika
     this.socket.on('newInvite', function (data) {
-        showConfirmDialog({
+        Dialog.showConfirmDialog({
             message: data.from + " zaprasza cię do gry. Akceptujesz?",
             confirmCallback: function () {
+                console.log("zaproszenie");
                 that.socket.emit('inviteResponse', {
                     'accept': true,
                     'to': data.from
@@ -65,7 +72,12 @@ Socket.prototype.listen = function () {
     //Dodanie do listy nowego użytkownika
     this.socket.on('addToPlayersList', function (data) {
         if (data.nickname !== nickname) {
-            var elem = $("<button class='player' id='" + data.nickname + "'>" + data.nickname + "</button>");
+
+
+            var elem = $("<button class='player' id='" + data.nickname + "'>" +
+                    data.nickname +
+                    "<img id='" + data.nickname + "_hasGame' src='../img/small_ball.png' style='display: none' />" +
+                    "</button>");
             $("#players").append(elem);
         }
     });
@@ -73,29 +85,35 @@ Socket.prototype.listen = function () {
 
     //Gracz odrzucił zaproszenie do gry
     this.socket.on('inviteRefused', function (data) {
-        alert("Użytkownik odrzucił zaproszenie");
+        Dialog.showInfoDialog({
+            message: "Użytkownik odrzucił zaproszenie"
+        });
     });
 
 
     this.socket.on('startGame', function (data) {
-        console.log(JSON.stringify(data));
+        //console.log(JSON.stringify(data));
         enableGameArea();
         gameArea.init(data.gameParams);
-        console.log('nickname ' + nickname);
-        console.log('data.gameParams.unlockedUser ' + data.gameParams.unlockedUser);
+        //console.log('nickname ' + nickname);
+        //console.log('data.gameParams.unlockedUser ' + data.gameParams.unlockedUser);
         if (nickname === data.gameParams.hasMove) {
-            console.log('unlockarea');
+            //console.log('unlockarea');
             gameArea.unlockArea();
         } else {
-            console.log('lockarea');
+            //console.log('lockarea');
             gameArea.lockArea();
         }
         gameArea.initArea();
     });
 
     this.socket.on('stopGame', function (data) {
-        alert(data.nickname + " opuścił grę");
-        disableGameArea();
+        Dialog.showInfoDialog({
+            message: data.nickname + " opuścił grę",
+            closeCallback: function () {
+                disableGameArea();
+            }
+        });
     });
 
     this.socket.on('validateResponse', function (data) {
@@ -121,13 +139,35 @@ Socket.prototype.listen = function () {
     });
 
     this.socket.on('opponentHasLeaveGame', function () {
-        alert('przeciwnik opuścił grę');
-        disableGameArea();
-        enableGlobalChat();
+        Dialog.showInfoDialog({
+            message: 'przeciwnik zamknął połączenie',
+            closeCallback: function () {
+                disableGameArea();
+                enableGlobalChat();
+            }
+        });
     });
-    
-    this.socket.on('nextGameRequest', function(data) {
-       alert(data.status);
+
+    this.socket.on('nextGameRequest', function (data) {
+        alert(data.status);
+    });
+
+    this.socket.on('receiverHasGame', function (data) {
+        Dialog.showInfoDialog({
+            message: data.receiver + " aktualnie rozgrywa mecz."
+        });
+    });
+
+    this.socket.on('updatePlayersGameStatus', function (players) {
+        players.forEach(function (player) {
+            //console.log('player: ' + player.nickname);
+            //console.log('hasgame: ' + player.hasGame);
+            if (player.hasGame) {
+                $("#" + player.nickname + "_hasGame").show();
+            } else {
+                $("#" + player.nickname + "_hasGame").hide();
+            }
+        });
     });
 
 };
@@ -138,12 +178,24 @@ var enableGameArea = function () {
 };
 
 var disableGameArea = function () {
+    //console.log('disableGameArea');
     $("#global-chat").show();
     $("#game-area").hide();
 
 }
 
 var enableGlobalChat = function () {
+    //console.log('enableGlobalChat');
     $("#global-chat").show();
     $("#game-area").hide();
+};
+
+var addPlayerToList = function (nickname, hasGame) {
+    var elem = null;
+    if (hasGame) {
+        elem = $("<button class='player' id='" + nickname + "'>" + nickname + "</button>");
+    } else {
+        elem = $("<button class='player' id='" + nickname + "'>" + nickname + "</button>");
+    }
+    $("#players").append(elem);
 };
