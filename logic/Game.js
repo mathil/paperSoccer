@@ -49,6 +49,8 @@ var Game = function (playerA, playerB, roomId) {
         {x: 585, y: 225},
         {x: 585, y: 270}
     ];
+    
+    this.moveHistory = [];
 
     that = this;
 
@@ -145,6 +147,7 @@ Game.prototype.isValidMove = function (x, y) {
     }
 
     //Sprawdzenie czy węzeł pozwala na kontynuowanie ruchu, jeśli nie to zmiana gracza
+    
     this.setNextMoveUser(x, y);
 
 
@@ -240,8 +243,16 @@ Game.prototype.setNextMoveUser = function (x, y) {
     this.usedNodes.forEach(function (node) {
         if (node.x === x && node.y === y) {
             if (!node.used) {
+                that.moveHstory = [];
                 that.changeNextMoveUser();
                 node.used = true;
+            } else {
+                that.moveHistory.push({
+                    beginX: that.lastPoint.x,
+                    beginY: that.lastPoint.y,
+                    endX: x,
+                    endY: y
+                });
             }
             return;
         }
@@ -348,6 +359,10 @@ Game.prototype.resetGame = function() {
         x: 315,
         y: 225
     };
+};
+
+Game.prototype.getHasMove = function() {
+    return this.hasMove;
 };
 
 

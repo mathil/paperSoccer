@@ -132,6 +132,7 @@ Socket.prototype.listen = function () {
             gameArea.lockArea();
         }
         gameArea.setMoveIcon(data.hasMove);
+        gameArea.resetTimeForMove();
     });
 
     this.socket.on('updateGameChat', function (data) {
@@ -168,6 +169,15 @@ Socket.prototype.listen = function () {
                 $("#" + player.nickname + "_hasGame").hide();
             }
         });
+    });
+    
+    this.socket.on('changeNextMoveUser', function(data) {
+        if(nickname === data.hasMove) {
+            gameArea.unlockArea();
+        } else {
+            gameArea.lockArea();
+        }
+        gameArea.setMoveIcon(data.hasMove);
     });
 
 };

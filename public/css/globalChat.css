@@ -15,14 +15,16 @@
 }
 
 #chat-area {
-    background-color: #00BF4D;
+    background-color: #007F33;
+    border-radius: 10px;
     width: 65%;
     height: 100%;
     float: right;
 }
 
 #players-list {
-    background-color: #00BF4D;
+    background-color: #007F33;
+    border-radius: 10px;
     width: 25%;
     height: 100%;
     float: left;

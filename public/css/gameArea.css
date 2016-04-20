@@ -38,14 +38,13 @@
 }
 
 #game-buttons {
-    border: 1px solid black;
     margin: auto;
     width: 90%;
     top: 10%;
     margin-left: 5%;
     margin-bottom: 10%;
     position: absolute;
-    text-align: right;
+    text-align: center;
 }
 
 #remove-move-button {
@@ -108,5 +107,7 @@
     float: right;
 }
 
-#player-a-move-icon {
+#time {
+    font-size: 200%;
+    color: #ffffff;
 }

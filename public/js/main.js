@@ -57,6 +57,7 @@ var addListeners = function () {
 
 
 $(document).ready(function () {
+//    enableGameArea();
 //    $("#global-chat").show();
 //    enableGameArea();
 //    $("#login-form").hide();
@@ -68,5 +69,8 @@ $(document).ready(function () {
 //    });
 //    gameArea.initArea();
     addListeners();
+    
+    
+    
 });
 

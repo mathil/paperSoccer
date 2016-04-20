@@ -1,5 +1,6 @@
 body {
-  background-color: #228533;
+  /*background-color: #228533;*/
+  background-image: url(../img/bg.png);
   font-family: arial;
 }
 
@@ -8,7 +9,7 @@ body {
 }*/
 
 button {
-    background-color: #0c8000;
+    background-color: #00BF4D;
     color: #ffffff;
     border: none;
 }
@@ -17,9 +18,4 @@ button {
   width: 100%;
   background-color: transparent;
   font-size: 1em;
-}
-
-#terms {
-    background-color: white;
-    height: 10%;
 }

@@ -66,6 +66,14 @@ io.sockets.on('connection', function (socket) {
         });
         if (user.getHasGame()) {
             var game = getGameByRoomId(user.getRoomId());
+            var opponent = usersCollection.getByNickname(game.getOpponent(socket.nickname));
+            opponent.setHasGame(false);
+            io.sockets.emit('updatePlayersGameStatus', [
+                {
+                    nickname: opponent.getNickname(),
+                    hasGame: opponent.getHasGame()
+                }
+            ])
             io.to(game.getRoomId()).emit('stopGame', {
                 nickname: socket.nickname
             });
@@ -188,8 +196,17 @@ io.sockets.on('connection', function (socket) {
 
 //        game.resetGame();
 
-
     });
+    
+    socket.on('timeForMoveHasGone', function() {
+        var gameRoomId = usersCollection.getByNickname(socket.nickname).getRoomId();
+        var game = getGameByRoomId(gameRoomId);
+        game.changeNextMoveUser();
+        io.to(gameRoomId).emit('changeNextMoveUser', {
+            hasMove: game.getHasMove()
+        });
+    });
+    
 
 });
 
@@ -198,17 +215,17 @@ var getCurrentTimeAsString = function () {
     var hour = date.getHours();
     var minutes = date.getMinutes();
     var seconds = date.getSeconds();
-
-    hour = hour % 2 != 0 ? hour : '0' + hour;
-
+    hour = hour < 10 ? '0' + hour : hour;
     return hour + ":" + minutes + ":" + seconds;
 };
 
 var getGameByRoomId = function (roomId) {
     var result = null;
     games.forEach(function (game) {
-        if (game.roomId === roomId)
+        if (game.roomId === roomId) {
             result = game.game;
+            return;
+        }
     });
     return result;
 };

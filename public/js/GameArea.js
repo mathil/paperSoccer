@@ -12,11 +12,14 @@ GameArea.prototype.init = function (params, nickname) {
     this.playerAColorLine = params.playerAColorLine;
     this.playerBColorLine = params.playerBColorLine;
     this.lastPoint = params.lastPoint;
+    this.lastUserPath = [];
     this.canvas = null;
     this.context = null;
     this.initGameArea();
     this.addListeners();
     that = this;
+    this.timeForMove = 30000;
+    this.initMoveTimer();
 };
 
 
@@ -119,6 +122,7 @@ GameArea.prototype.initGameArea = function () {
 
 GameArea.prototype.drawMove = function (x, y, lineColor) {
     this.context.strokeStyle = lineColor;
+    this.context.lineWidth = 2;
     this.context.beginPath();
     this.context.moveTo(this.lastPoint.x, this.lastPoint.y);
     this.context.lineTo(x, y);
@@ -201,6 +205,25 @@ GameArea.prototype.clearArea = function (params) {
     this.initArea();
 };
 
+GameArea.prototype.initMoveTimer = function() {
+    console.log('initmovetimer');
+    function updateTimer() {
+        console.log('updateTimer');
+        if(that.timeForMove > 0) {
+            that.timeForMove -= 1000;
+            $("#time").html("0:" + (that.timeForMove/1000));
+            setTimeout(updateTimer, 1000);
+        } else {
+            SOCKET.getSocket().emit('timeForMoveHasGone');
+        }
+    };
+    updateTimer();
+};
+
+GameArea.prototype.resetTimeForMove = function() {
+    this.timeForMove = 30000;
+};
+
 GameArea.prototype.addListeners = function () {
     $(document).on('click', '#leave-game', function () {
 
@@ -215,4 +238,8 @@ GameArea.prototype.addListeners = function () {
             cancelCallback: null
         });
     });
+    
+    window.onbeforeunload = function(evt) {
+        alert('ads');
+    };
 };
