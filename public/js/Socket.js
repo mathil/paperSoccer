@@ -29,7 +29,6 @@ Socket.prototype.listen = function () {
             this.nickname = $("#login").val();
             $("#login-form").hide();
             $("#global-chat").show();
-
             var content = "";
             (data.players).forEach(function (player) {
                 content += "<button class='player' id='" + player.nickname + "'>" + player.nickname;
@@ -170,14 +169,16 @@ Socket.prototype.listen = function () {
             }
         });
     });
-    
-    this.socket.on('changeNextMoveUser', function(data) {
-        if(nickname === data.hasMove) {
+
+    this.socket.on('changeNextMoveUser', function (data) {
+        console.log('changeNextMoveUser');
+        if (nickname === data.hasMove) {
             gameArea.unlockArea();
         } else {
             gameArea.lockArea();
         }
         gameArea.setMoveIcon(data.hasMove);
+        gameArea.resetTimeForMove();
     });
 
 };

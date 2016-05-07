@@ -1,7 +1,8 @@
 
 #game-area {
     display: none;
-    background: #33CC33;
+    background-color: #007F33;
+    border-radius: 10px;
     margin: auto;
     position: absolute;
     left: 0; right: 0; top: 0; bottom: 0;
@@ -18,7 +19,7 @@
     position: absolute;
     margin: auto;
     top: 0; bottom: 0; left: 2%;
-
+    border-right: 1px solid white;
 }
 
 #score-container {
@@ -28,7 +29,7 @@
 }
 
 #player-a-nick {
-    
+
 }
 
 #player-b-nick {
@@ -52,6 +53,9 @@
 }
 
 #leave-game {
+    float: right;
+    font-size: 150%;
+    border-radius: 10px;
 }
 
 #game-canvas {
@@ -75,39 +79,30 @@
 
 
 #game-chat {
-    position: absolute;
     margin: auto;
-    top: 5%;
+    top: 2%;
     width: 99%;
-    height: 85%;
+    height: 90%;
     resize: none;
-    color: white;
-    background-color: #009933;
-}
-
-#game-chat-input-box {
-    position: absolute;
-    margin: auto;
-    bottom: 1%;
-    width: 100%;
-    height: 5%;
 }
 
 #game-chat-input {
     font-size: 150%;
     width: 70%;
-    height: 100%;
+    height: 7%;
     padding-left: 2%;
+    margin-left: 1px;
 }
 
 #game-chat-input-button {
     font-size: 150%;
     width: 25%;
-    height: 100%;    
-    float: right;
+    height: 7%;    
+    /*float: right;*/
 }
 
 #time {
+    position: absolute;
     font-size: 200%;
     color: #ffffff;
 }

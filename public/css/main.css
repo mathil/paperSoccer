@@ -1,12 +1,12 @@
 body {
-  /*background-color: #228533;*/
-  background-image: url(../img/bg.png);
-  font-family: arial;
+    /*background-color: #228533;*/
+    background-image: url(../img/bg.png);
+    font-family: arial;
 }
 
-/*div {
-  border: 1px solid black;
-}*/
+div {
+  /*border: 1px solid black;*/
+}
 
 button {
     background-color: #00BF4D;
@@ -14,8 +14,9 @@ button {
     border: none;
 }
 
+
 .player {
-  width: 100%;
-  background-color: transparent;
-  font-size: 1em;
+    width: 100%;
+    background-color: transparent;
+    font-size: 1em;
 }

@@ -50,6 +50,12 @@ GameArea.prototype.initArea = function () {
             return;
         }
 
+        console.log("-----");
+        console.log("from.x=" + that.lastPoint.x);
+        console.log("from.y=" + that.lastPoint.y);
+        console.log("to.x" + nearestNode.x);
+        console.log("to.y" + nearestNode.y);
+
         SOCKET.getSocket().emit('validateMove', {
             from: {
                 x: that.lastPoint.x,
@@ -209,9 +215,12 @@ GameArea.prototype.initMoveTimer = function() {
     console.log('initmovetimer');
     function updateTimer() {
         console.log('updateTimer');
+        var timeForMoveAsSecond;
         if(that.timeForMove > 0) {
+            timeForMoveAsSecond = that.timeForMove/1000;
+            timeForMoveAsSecond = timeForMoveAsSecond < 10 ? '0'+ timeForMoveAsSecond : timeForMoveAsSecond;
+            $("#time").html("0:" + timeForMoveAsSecond);
             that.timeForMove -= 1000;
-            $("#time").html("0:" + (that.timeForMove/1000));
             setTimeout(updateTimer, 1000);
         } else {
             SOCKET.getSocket().emit('timeForMoveHasGone');
@@ -221,6 +230,7 @@ GameArea.prototype.initMoveTimer = function() {
 };
 
 GameArea.prototype.resetTimeForMove = function() {
+    console.log('resetTimeForMove');
     this.timeForMove = 30000;
 };
 

@@ -15,10 +15,13 @@ var addListeners = function () {
     });
 
     $("#global-chat-send-message").click(function () {
-        SOCKET.getSocket().emit('globalChatMessage', {
-            message: $("#global-chat-message").val()
-        });
-        $("#global-chat-message").val("");
+        sendGlobalChatMessage();
+    });
+    
+    $("#global-chat-message").keypress(function(e){
+       if(e.which === 13) {
+            sendGlobalChatMessage();
+       } 
     });
 
     $("#players-list").on('click', '.player', function () {
@@ -30,36 +33,38 @@ var addListeners = function () {
             });
         }
     });
+
+    $("#game-chat-input-button").click(function () {
+        sendGameChatMessage();
+    });
     
-    $("#game-chat-input-button").click(function() {
-        var message = $("#game-chat-input").val();
-        $("#game-chat-input").val("");
-        
+    $("#game-chat-input").keypress(function(e){
+       if(e.which === 13) {
+            sendGameChatMessage();
+       } 
+    });
+
+    function sendGlobalChatMessage() {
+        SOCKET.getSocket().emit('globalChatMessage', {
+            message: $("#global-chat-message").val()
+        });
+        $("#global-chat-message").val("");
+    }
+
+    function sendGameChatMessage() {
         SOCKET.getSocket().emit('gameChatMessage', {
-            message: message
+            message: $("#game-chat-input").val()
         });
-    });
-    
-    $("#show-dialog").click(function() {
-        Dialog.showConfirmDialog({
-            message: "To jest test dialogu",
-            confirmCallback: function() {
-                //console.log("confirm");
-            },
-            cancelCallback: function() {
-                //console.log("close");
-            }
-        });
-    });
-    
-    
+        $("#game-chat-input").val("");
+    }
+
+
 };
 
 
 $(document).ready(function () {
 //    enableGameArea();
 //    $("#global-chat").show();
-//    enableGameArea();
 //    $("#login-form").hide();
 //    gameArea.setBasicParameters({
 //        playerA: 'gracz1',
@@ -69,8 +74,8 @@ $(document).ready(function () {
 //    });
 //    gameArea.initArea();
     addListeners();
-    
-    
-    
+
+
+
 });
 
