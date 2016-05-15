@@ -95,10 +95,6 @@ GameArea.prototype.getNearestNode = function (x, y) {
     return nearestNode;
 };
 
-GameArea.prototype.drawLine = function () {
-
-};
-
 GameArea.prototype.lockArea = function () {
     this.lock = true;
 };
@@ -152,7 +148,7 @@ GameArea.prototype.drawArea = function () {
     this.canvas.height = 450;
 
     this.context.strokeStyle = '#ffffff';
-    this.context.lineWidth = 2;
+    this.context.lineWidth = 4;
     this.context.lineCap = 'butt';
     this.context.fillStyle = "#FFFFFF";
 
@@ -194,8 +190,8 @@ GameArea.prototype.drawArea = function () {
     this.context.lineTo(90, 45);
 
 
-    for (var i = 135; i <= 495; i += 45) {
-        for (var j = 90; j <= 360; j += 45) {
+    for (var i = 45; i <= 630; i += 45) {
+        for (var j = 45; j <= 450; j += 45) {
             this.context.fillRect(i, j, 2, 2);
         }
     }
@@ -211,25 +207,26 @@ GameArea.prototype.clearArea = function (params) {
     this.initArea();
 };
 
-GameArea.prototype.initMoveTimer = function() {
+GameArea.prototype.initMoveTimer = function () {
     console.log('initmovetimer');
     function updateTimer() {
         console.log('updateTimer');
         var timeForMoveAsSecond;
-        if(that.timeForMove > 0) {
-            timeForMoveAsSecond = that.timeForMove/1000;
-            timeForMoveAsSecond = timeForMoveAsSecond < 10 ? '0'+ timeForMoveAsSecond : timeForMoveAsSecond;
+        if (that.timeForMove > 0) {
+            timeForMoveAsSecond = that.timeForMove / 1000;
+            timeForMoveAsSecond = timeForMoveAsSecond < 10 ? '0' + timeForMoveAsSecond : timeForMoveAsSecond;
             $("#time").html("0:" + timeForMoveAsSecond);
             that.timeForMove -= 1000;
             setTimeout(updateTimer, 1000);
         } else {
             SOCKET.getSocket().emit('timeForMoveHasGone');
         }
-    };
+    }
+    ;
     updateTimer();
 };
 
-GameArea.prototype.resetTimeForMove = function() {
+GameArea.prototype.resetTimeForMove = function () {
     console.log('resetTimeForMove');
     this.timeForMove = 30000;
 };
@@ -248,8 +245,8 @@ GameArea.prototype.addListeners = function () {
             cancelCallback: null
         });
     });
-    
-    window.onbeforeunload = function(evt) {
+
+    window.onbeforeunload = function (evt) {
         alert('ads');
     };
 };

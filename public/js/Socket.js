@@ -122,6 +122,9 @@ Socket.prototype.listen = function () {
 
         gameArea.drawMove(data.x, data.y, data.lineColor);
 
+        if(data.moveNotAvailable !== undefined) {
+            alert("ślepa uliczka");
+        }
         if (data.isGoalMove) {
             gameArea.isGoalMove(data.goalFor, data.score, data.resetGameParams);
         }

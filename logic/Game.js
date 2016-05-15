@@ -98,7 +98,12 @@ Game.prototype.getStartGameParameters = function () {
 Game.prototype.validateMove = function (x, y) {
     var response = null;
     var lineColor = this.hasMove === this.playerA ? this.playerAColorLine : this.playerBColorLine;
+    var lastPointCopy = {
+        x: this.lastPoint.x,
+        y: this.lastPoint.y
+    };
     if (this.isValidMove(x, y)) {
+
         response = {
             isValid: true,
             hasMove: this.hasMove,
@@ -107,17 +112,24 @@ Game.prototype.validateMove = function (x, y) {
             lineColor: lineColor,
         };
 
-        var goalForPlayer = this.isGoalMove(x, y);
-        if (goalForPlayer !== null) {
-            response.isGoalMove = true;
-            response.goalFor = goalForPlayer;
-            response.score = this.scorePlayerA + ":" + this.scorePlayerB;
-            this.resetGame();
-            response.resetGameParams = {
-                lastPoint: this.lastPoint
-            };
+        //Sprawdzenie czy gracz posiada pole manewru
+        var availableMoves = this.getAvailableMovesCount(lastPointCopy, x, y);
+        console.log("Możliwe ruchy: " + availableMoves);
+        if (availableMoves === 0) {
+            response.moveNotAvailable = true;
         } else {
-            response.isGoalMove = false;
+            var goalForPlayer = this.isGoalMove(x, y);
+            if (goalForPlayer !== null) {
+                response.isGoalMove = true;
+                response.goalFor = goalForPlayer;
+                response.score = this.scorePlayerA + ":" + this.scorePlayerB;
+                this.resetGame();
+                response.resetGameParams = {
+                    lastPoint: this.lastPoint
+                };
+            } else {
+                response.isGoalMove = false;
+            }
         }
 
     } else {
@@ -144,14 +156,6 @@ Game.prototype.isValidMove = function (x, y) {
         return false;
     }
 
-    //Sprawdzenie czy gracz posiada pole manewru
-    if (!this.isMoveAvailable(x, y)) {
-        console.log("Ruch jest niemożliwy");
-        return false;
-    }
-
-    //Sprawdzenie czy węzeł pozwala na kontynuowanie ruchu, jeśli nie to zmiana gracza
-
     this.setNextMoveUser(x, y);
 
 
@@ -174,15 +178,13 @@ Game.prototype.initNodesArray = function () {
     var nodes = [];
     for (var i = 90; i <= 540; i += 45) {
         for (var j = 45; j <= 405; j += 45) {
-            if (!(i === 540 && j === 225) && !(i === 90 && j === 225)) {
-                nodes.push(
-                        {
-                            x: i,
-                            y: j,
-                            used: (i === 90 || i === 540) || (j === 45 || j === 405) || (i === 315 && j === 225) ? true : false
-                        }
-                );
-            }
+            nodes.push(
+                    {
+                        x: i,
+                        y: j,
+                        used: this.shouldNodeBeUsed(i, j)
+                    }
+            );
         }
     }
     nodes.push({x: 45, y: 180});
@@ -192,6 +194,21 @@ Game.prototype.initNodesArray = function () {
     nodes.push({x: 585, y: 225});
     nodes.push({x: 585, y: 270});
     return nodes;
+};
+
+Game.prototype.shouldNodeBeUsed = function (x, y) {
+    if (x === 315 && y === 225) {
+        return true;
+    } else if (x === 540 && y === 225) {
+        return false;
+    } else if (x === 90 && y === 225) {
+        return false;
+    } else if (x === 90 || x === 540) {
+        return true;
+    } else if (y === 315 || y === 225) {
+        return false;
+    }
+    return false;
 };
 
 Game.prototype.setNodeAsUsed = function () {
@@ -209,13 +226,13 @@ Game.prototype.setNodeAsUsed = function () {
 
 Game.prototype.isNotBorder = function (startX, startY, endX, endY) {
     if (startX === 90 && endX === 90) {
-        if (startY < 180 && endY > 290) {
-            return false;
-        }
+//        if (startY < 180 && endY > 290) {
+        return false;
+//        }
     } else if (startX === 540 && endX === 540) {
-        if (startY < 225 && endY > 290) {
-            return false;
-        }
+//        if (startY < 225 && endY > 290) {
+        return false;
+//        }
     } else if (startY === 45 && endY === 45) {
         return false;
     } else if (startY === 405 && endY === 405) {
@@ -244,8 +261,25 @@ Game.prototype.validatePath = function (startX, startY, endX, endY) {
     return firstCondition || secondCondition;
 };
 
-Game.prototype.isMoveAvailable = function (x, y) {
-    //TO DO
+Game.prototype.getAvailableMovesCount = function (lastPointCopy, x, y) {
+    var availableMoves = 0;
+    for (var i = x - 45; i <= x + 45; i += 45) {
+        for (var j = y - 45; j <= y + 45; j += 45) {
+            if (!(i === x && j === y) && this.isNodeInArea(i, j) && (i !== lastPointCopy.x && j !== lastPointCopy.y)) {
+                if (!this.validatePath(x, y, i, j)) {
+                    availableMoves++;
+                }
+            }
+        }
+    }
+    return availableMoves;
+};
+
+Game.prototype.isNodeInArea = function (x, y) {
+    if (x <= 45 || y <= 45 || x >= 540 || y >= 405) {
+        console.log('jest poza planszą');
+        return false;
+    }
     return true;
 };
 
