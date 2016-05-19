@@ -22,7 +22,7 @@ var Game = function (playerA, playerB, roomId) {
     this.playerBColorLine = "";
     this.usedNodes = this.initNodesArray();
     this.usedPatches = [];
-    this.hasMove = playerA;
+    this.currentPlayer = playerA;
     this.userANextGameApproved = null;
     this.userBNextGameApproved = null;
     this.lastPoint = {// domyślnie środek planszy
@@ -91,58 +91,58 @@ Game.prototype.getStartGameParameters = function () {
         playerAColorLine: this.playerAColorLine,
         playerBColorLine: this.playerBColorLine,
         lastPoint: this.lastPoint,
-        hasMove: this.hasMove
+        currentPlayer: this.currentPlayer
     };
 };
 
 Game.prototype.validateMove = function (x, y) {
-    var response = null;
-    var lineColor = this.hasMove === this.playerA ? this.playerAColorLine : this.playerBColorLine;
-    var lastPointCopy = {
-        x: this.lastPoint.x,
-        y: this.lastPoint.y
-    };
-    if (this.isValidMove(x, y)) {
+    var response = {};
+    var lineColor = this.currentPlayer === this.playerA ? this.playerAColorLine : this.playerBColorLine;
 
-        response = {
-            isValid: true,
-            hasMove: this.hasMove,
-            x: this.lastPoint.x,
-            y: this.lastPoint.y,
-            lineColor: lineColor,
-        };
+    if (this.isValidPath(x, y)) {
 
-        //Sprawdzenie czy gracz posiada pole manewru
-        var availableMoves = this.getAvailableMovesCount(lastPointCopy, x, y);
-        console.log("Możliwe ruchy: " + availableMoves);
-        if (availableMoves === 0) {
-            response.moveNotAvailable = true;
+        var goalForPlayer = this.returnPlayerIfIsGoalMove(x, y);
+        if (goalForPlayer !== null) {
+            response.status = 'goalMove';
+            response.winner = goalForPlayer;
+            response.score = this.scorePlayerA + ":" + this.scorePlayerB;
+            response.resetGameParams = {
+                lastPoint: {x: 315,
+                    y: 225}
+            };
+        } else if (this.getAvailableMovesCount(x, y) === 0) {
+            response.status = 'moveNotAvailable';
+            response.winner = this.getOpponent(this.currentPlayer);
         } else {
-            var goalForPlayer = this.isGoalMove(x, y);
-            if (goalForPlayer !== null) {
-                response.isGoalMove = true;
-                response.goalFor = goalForPlayer;
-                response.score = this.scorePlayerA + ":" + this.scorePlayerB;
-                this.resetGame();
-                response.resetGameParams = {
-                    lastPoint: this.lastPoint
-                };
-            } else {
-                response.isGoalMove = false;
-            }
+            response.status = 'continueGame';
         }
 
+        this.setCurrentPlayer(x, y);
+        response.currentPlayer = this.currentPlayer;
+        response.x = x;
+        response.y = y;
+        response.lineColor = lineColor;
+
+        this.usedPatches.push({
+            startX: this.lastPoint.x,
+            startY: this.lastPoint.y,
+            endX: x,
+            endY: y
+        });
+
+        this.lastPoint.x = x;
+        this.lastPoint.y = y;
+
     } else {
-        console.log("Zły ruch");
         response = {
-            isValid: false,
-            hasMove: this.hasMove,
+            status: 'invalidMove',
+            currentPlayer: this.currentPlayer,
         };
     }
     return response;
 };
 
-Game.prototype.isValidMove = function (x, y) {
+Game.prototype.isValidPath = function (x, y) {
 
     //Sprawdzenie czy ścieżna nie nachodzi na krawędź boiska
     if (!this.isNotBorder(this.lastPoint.x, this.lastPoint.y, x, y)) {
@@ -155,22 +155,7 @@ Game.prototype.isValidMove = function (x, y) {
         console.log("Jest użyta");
         return false;
     }
-
-    this.setNextMoveUser(x, y);
-
-
-    this.usedPatches.push({
-        startX: this.lastPoint.x,
-        startY: this.lastPoint.y,
-        endX: x,
-        endY: y
-    });
-
-    this.lastPoint.x = x;
-    this.lastPoint.y = y;
-
     return true;
-
 };
 
 
@@ -261,11 +246,11 @@ Game.prototype.validatePath = function (startX, startY, endX, endY) {
     return firstCondition || secondCondition;
 };
 
-Game.prototype.getAvailableMovesCount = function (lastPointCopy, x, y) {
+Game.prototype.getAvailableMovesCount = function (x, y) {
     var availableMoves = 0;
     for (var i = x - 45; i <= x + 45; i += 45) {
         for (var j = y - 45; j <= y + 45; j += 45) {
-            if (!(i === x && j === y) && this.isNodeInArea(i, j) && (i !== lastPointCopy.x && j !== lastPointCopy.y)) {
+            if (!(i === x && j === y) && this.isNodeInArea(i, j) && (i !== this.lastPoint.x && j !== this.lastPoint.y)) {
                 if (!this.validatePath(x, y, i, j)) {
                     availableMoves++;
                 }
@@ -277,13 +262,12 @@ Game.prototype.getAvailableMovesCount = function (lastPointCopy, x, y) {
 
 Game.prototype.isNodeInArea = function (x, y) {
     if (x <= 45 || y <= 45 || x >= 540 || y >= 405) {
-        console.log('jest poza planszą');
         return false;
     }
     return true;
 };
 
-Game.prototype.setNextMoveUser = function (x, y) {
+Game.prototype.setCurrentPlayer = function (x, y) {
     this.usedNodes.forEach(function (node) {
         if (node.x === x && node.y === y) {
             if (!node.used) {
@@ -305,29 +289,35 @@ Game.prototype.setNextMoveUser = function (x, y) {
 };
 
 Game.prototype.changeNextMoveUser = function () {
-    if (this.hasMove === this.playerA) {
-        this.hasMove = this.playerB;
+    if (this.currentPlayer === this.playerA) {
+        this.currentPlayer = this.playerB;
     } else {
-        this.hasMove = this.playerA;
+        this.currentPlayer = this.playerA;
     }
 };
 
-Game.prototype.isGoalMove = function (x, y) {
-    var goalFor = null;
+Game.prototype.returnPlayerIfIsGoalMove = function (x, y) {
+    var winner = null;
     this.playerAGoalNodes.forEach(function (node) {
         if (node.x === x && node.y === y) {
-            goalFor = that.playerB;
-            that.scorePlayerB++;
+            winner = that.playerB;
         }
     });
     this.playerBGoalNodes.forEach(function (node) {
         if (node.x === x && node.y === y) {
-            goalFor = that.playerA;
-            that.scorePlayerA++;
+            winner = that.playerA;
         }
     });
+    this.increaseScoreForPlayer(winner);
+    return winner;
+};
 
-    return goalFor;
+Game.prototype.increaseScoreForPlayer = function(nickname) {
+    if(this.playerA === nickname) {
+        this.scorePlayerA++;
+    } else if(this.playerB === nickname) {
+        this.scorePlayerB++;
+    }
 };
 
 Game.prototype.getOpponent = function (nickname) {
@@ -405,8 +395,8 @@ Game.prototype.resetGame = function () {
     };
 };
 
-Game.prototype.getHasMove = function () {
-    return this.hasMove;
+Game.prototype.getCurrentPlayer = function () {
+    return this.currentPlayer;
 };
 
 

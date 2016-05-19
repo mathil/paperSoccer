@@ -149,8 +149,8 @@ io.sockets.on('connection', function (socket) {
         var gameRoomId = usersCollection.getByNickname(socket.nickname).getRoomId();
         var game = getGameByRoomId(gameRoomId);
 
-        var validate = game.validateMove(data.to.x, data.to.y);
-        io.to(gameRoomId).emit('validateResponse', validate);
+        var validateResponse = game.validateMove(data.to.x, data.to.y);
+        io.to(gameRoomId).emit('validateResponse', validateResponse);
 
     });
 
@@ -203,7 +203,7 @@ io.sockets.on('connection', function (socket) {
         var game = getGameByRoomId(gameRoomId);
         game.changeNextMoveUser();
         io.to(gameRoomId).emit('changeNextMoveUser', {
-            hasMove: game.getHasMove()
+            currentPlayer: game.getCurrentPlayer()
         });
     });
     

@@ -96,7 +96,7 @@ Socket.prototype.listen = function () {
         gameArea.init(data.gameParams);
         //console.log('nickname ' + nickname);
         //console.log('data.gameParams.unlockedUser ' + data.gameParams.unlockedUser);
-        if (nickname === data.gameParams.hasMove) {
+        if (nickname === data.gameParams.currentPlayer) {
             //console.log('unlockarea');
             gameArea.unlockArea();
         } else {
@@ -117,24 +117,28 @@ Socket.prototype.listen = function () {
 
     this.socket.on('validateResponse', function (data) {
 
-        if (!data.isValid)
-            return;
+        if (data.status !== 'invalidMove') {
+            gameArea.drawMove(data.x, data.y, data.lineColor);
+            if (data.status === 'goalMove') {
+                gameArea.isGoalMove(data.winner, data.score, data.resetGameParams);
+                Dialog.showInfoDialog({
+                   message: "Gooool! " + data.winner + " wygrywa mecz!" 
+                });
+            } else if (data.status === 'moveNotAvailable') {
+                Dialog.showInfoDialog({
+                   message: "Brak możliwości ruchu! " + data.winner + " wygrywa mecz!" 
+                });
+            } else if (data.status === 'continueGame') {
+                if (data.currentPlayer === this.nickname) {
+                    gameArea.unlockArea();
+                } else {
+                    gameArea.lockArea();
+                }
+                gameArea.setMoveIcon(data.currentPlayer);
+                gameArea.resetTimeForMove();
+            }
+        }
 
-        gameArea.drawMove(data.x, data.y, data.lineColor);
-
-        if(data.moveNotAvailable !== undefined) {
-            alert("ślepa uliczka");
-        }
-        if (data.isGoalMove) {
-            gameArea.isGoalMove(data.goalFor, data.score, data.resetGameParams);
-        }
-        if (data.hasMove === this.nickname) {
-            gameArea.unlockArea();
-        } else {
-            gameArea.lockArea();
-        }
-        gameArea.setMoveIcon(data.hasMove);
-        gameArea.resetTimeForMove();
     });
 
     this.socket.on('updateGameChat', function (data) {
@@ -175,12 +179,12 @@ Socket.prototype.listen = function () {
 
     this.socket.on('changeNextMoveUser', function (data) {
         console.log('changeNextMoveUser');
-        if (nickname === data.hasMove) {
+        if (nickname === data.currentPlayer) {
             gameArea.unlockArea();
         } else {
             gameArea.lockArea();
         }
-        gameArea.setMoveIcon(data.hasMove);
+        gameArea.setMoveIcon(data.currentPlayer);
         gameArea.resetTimeForMove();
     });
 

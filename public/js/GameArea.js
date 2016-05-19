@@ -103,11 +103,11 @@ GameArea.prototype.unlockArea = function () {
     this.lock = false;
 };
 
-GameArea.prototype.setMoveIcon = function (hasMove) {
-    if (hasMove === this.playerA) {
+GameArea.prototype.setMoveIcon = function (currentPlayer) {
+    if (currentPlayer === this.playerA) {
         $("#player-a-move-icon").css('visibility', 'visible');
         $("#player-b-move-icon").css('visibility', 'hidden');
-    } else if (hasMove === this.playerB) {
+    } else if (currentPlayer === this.playerB) {
         $("#player-a-move-icon").css('visibility', 'hidden');
         $("#player-b-move-icon").css('visibility', 'visible');
 
