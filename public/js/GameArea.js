@@ -6,7 +6,7 @@ var GameArea = function () {
 
 };
 
-GameArea.prototype.init = function (params, nickname) {
+GameArea.prototype.init = function (params) {
     this.playerA = params.playerA;
     this.playerB = params.playerB;
     this.playerAColorLine = params.playerAColorLine;
@@ -15,7 +15,7 @@ GameArea.prototype.init = function (params, nickname) {
     this.lastUserPath = [];
     this.canvas = null;
     this.context = null;
-    this.initGameArea();
+    this.setScore(params.scorePlayerA, params.scorePlayerB);
     this.addListeners();
     that = this;
     this.timeForMove = 30000;
@@ -114,12 +114,12 @@ GameArea.prototype.setMoveIcon = function (currentPlayer) {
     }
 }
 
-GameArea.prototype.initGameArea = function () {
+GameArea.prototype.setScore = function (scorePlayerA, scorePlayerB) {
     $("#player-a-nick").html(this.playerA);
     $("#player-a-nick").css('color', this.playerAColorLine);
     $("#player-b-nick").html(this.playerB);
     $("#player-b-nick").css('color', this.playerBColorLine);
-    $("#score").html("0:0");
+    $("#score").html(scorePlayerA + ":" + scorePlayerB);
 };
 
 GameArea.prototype.drawMove = function (x, y, lineColor) {
@@ -135,8 +135,8 @@ GameArea.prototype.drawMove = function (x, y, lineColor) {
 
 GameArea.prototype.isGoalMove = function (player, score, resetGameParams) {
     $("#score").html(score);
-    this.clearArea();
-    this.lastPoint = resetGameParams.lastPoint;
+//    this.clearArea();
+//    this.lastPoint = resetGameParams.lastPoint;
     //console.log(resetGameParams.lastPoint);
 };
 
@@ -204,7 +204,6 @@ GameArea.prototype.drawArea = function () {
 GameArea.prototype.clearArea = function (params) {
     this.nodes = this.fillNodes();
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.initArea();
 };
 
 GameArea.prototype.initMoveTimer = function () {
@@ -249,4 +248,11 @@ GameArea.prototype.addListeners = function () {
     window.onbeforeunload = function (evt) {
         alert('ads');
     };
+};
+
+GameArea.prototype.startNewGame = function(params) {
+    this.clearArea();
+    this.init(params);
+    this.initArea();
+    this.setMoveIcon(params.currentPlayer);
 };

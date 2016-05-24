@@ -175,26 +175,25 @@ io.sockets.on('connection', function (socket) {
         ]);
     });
 
-    socket.on('nextGameRequest', function (data) {
-//        var user = usersCollection.getByNickname(socket.nickname);
-//        var gameRoomId = user.getRoomId();
-//        var game = getGameByRoomId(gameRoomId);
-//
-//        if (data.nextGameApproved) {
-//            game.approvedNextGame(socket.nickname);
-//            if (game.checkIfOpponentApprovedNextGame(socket.nickname) === null) {
-//                io.to(user.getId()).emit('nextGameResponse', {status: 'waitingForOpponentDecision'});
-//            } else if (game.checkIfOpponentApprovedNextGame(socket.nickname) === true) {
-//                io.to(user.getId()).emit('nextGameResponse', {status: 'opponentApprovedNextGame'});
-//            } else if (game.checkIfOpponentApprovedNextGame(socket.nickname) === false) {
-//                io.to(user.getId()).emit('nextGameResponse', {status: 'opponentNotApprovedNextGame'});
-//            }
-//        } else {
-//            game.discardNextGame(socket.nickname);
-//            var opponent = game.getOpponent(socket.nickname);
-//        }
+    socket.on('nextGameRequest', function (isAccept) {
+        var user = usersCollection.getByNickname(socket.nickname);
+        var gameRoomId = user.getRoomId();
+        var game = getGameByRoomId(gameRoomId);
 
-//        game.resetGame();
+        if (isAccept) {
+            if(game.isNextGameAccepted() === null) {
+                socket.emit('nextGameResponse', 'waitingForOpponent');
+                game.acceptNextGame();
+            } else if(game.isNextGameAccepted()) {
+                game.resetGame();
+                io.to(gameRoomId).emit('nextGameResponse', 'startNewGame', game.getStartGameParameters());
+            } else if(!game.isNextGameAccepted()) {
+                socket.emit('nextGameResponse', 'opponentNotConfirmNextGame');
+            }
+        } else {
+            var opponent = game.getOpponent(socket.nickname);
+            io.to(opponent.getId()).emit('nextGameResponse', 'opponentNotConfirmNextGame')
+        }
 
     });
     

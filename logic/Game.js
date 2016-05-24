@@ -39,18 +39,25 @@ var Game = function (playerA, playerB, roomId) {
         this.playerBColorLine = colors[0];
     }
 
-    this.playerAGoalNodes = [
+    this.leftGoalNodes = [
         {x: 45, y: 180},
         {x: 45, y: 225},
         {x: 45, y: 270}
     ];
-    this.playerBGoalNodes = [
+    
+    this.rightGoalNodes = [
         {x: 585, y: 180},
         {x: 585, y: 225},
         {x: 585, y: 270}
     ];
 
+    this.playerAGoalNodes = this.leftGoalNodes;
+    
+    this.playerBGoalNodes = this.rightGoalNodes;
+
     this.moveHistory = [];
+    
+    this.nextGameAccepted = null;
 
     that = this;
 
@@ -91,7 +98,9 @@ Game.prototype.getStartGameParameters = function () {
         playerAColorLine: this.playerAColorLine,
         playerBColorLine: this.playerBColorLine,
         lastPoint: this.lastPoint,
-        currentPlayer: this.currentPlayer
+        currentPlayer: this.currentPlayer,
+        scorePlayerA: this.scorePlayerA,
+        scorePlayerB: this.scorePlayerB
     };
 };
 
@@ -327,29 +336,6 @@ Game.prototype.getOpponent = function (nickname) {
         return this.playerA;
 };
 
-Game.prototype.switchArea = function () {
-    var buffer = this.playerA;
-    this.playerA = this.playerB;
-    this.playerB = buffer;
-
-    buffer = this.scorePlayerA;
-    this.scorePlayerA = this.scorePlayerB;
-    this.scorePlayerB = buffer;
-
-    buffer = this.playerAColorLine;
-    this.playerAColorLine = this.playerBColorLine;
-    this.playerBColorLine = buffer;
-
-    buffer = this.playerAGoalNodes;
-    this.playerAGoalNodes = this.playerBGoalNodes;
-    this.playerBGoalNodes = buffer;
-
-    this.usedPatches = [];
-
-    this.usedNodes = this.initNodesArray();
-
-};
-
 Game.prototype.approveNextGame = function (userNickname) {
     if (this.playerA === userNickname) {
         this.userBNextGameApproved = true;
@@ -378,26 +364,49 @@ Game.prototype.resetGame = function () {
     this.usedNodes = this.initNodesArray();
     this.usedPatches = [];
 
-    this.playerAGoalNodes = [
-        {x: 45, y: 180},
-        {x: 45, y: 225},
-        {x: 45, y: 270}
-    ];
-    this.playerBGoalNodes = [
-        {x: 585, y: 180},
-        {x: 585, y: 225},
-        {x: 585, y: 270}
-    ];
-
     this.lastPoint = {// domyślnie środek planszy
         x: 315,
         y: 225
     };
+    
+    var buffer;
+    buffer = this.playerA;
+    this.playerA = this.playerB;
+    this.playerB = buffer;
+    
+    buffer = this.scorePlayerA;
+    this.scorePlayerA = this.scorePlayerB;
+    this.scorePlayerB = buffer;
+    
+    buffer = this.playerAColorLine;
+    this.playerAColorLine = this.playerBColorLine;
+    this.playerBColorLine = buffer; 
+    
+    if(this.scorePlayerA + this.scorePlayerA % 2 === 0) {
+        this.currentPlayer = this.playerA;
+    } else {
+        this.currentPlayer = this.playerB;
+    }
+    
+    
 };
 
 Game.prototype.getCurrentPlayer = function () {
     return this.currentPlayer;
 };
+Game.prototype.isNextGameAccepted = function () {
+    return this.nextGameAccepted;
+};
+
+Game.prototype.acceptNextGame = function () {
+    this.nextGameAccepted = true;
+};
+
+Game.prototype.discardNextGame = function () {
+    this.nextGameAccepted = false;
+};
+
+
 
 
 

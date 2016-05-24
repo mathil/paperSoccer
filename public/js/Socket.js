@@ -5,7 +5,7 @@ var Socket = function (nickname) {
 };
 
 Socket.prototype.connect = function () {
-    this.socket = io.connect('http://localhost:8080');
+    this.socket = io.connect('http://192.168.1.16:8080');
 };
 
 Socket.prototype.getSocket = function () {
@@ -104,6 +104,7 @@ Socket.prototype.listen = function () {
             gameArea.lockArea();
         }
         gameArea.initArea();
+        gameArea.setMoveIcon(data.gameParams.currentPlayer);
     });
 
     this.socket.on('stopGame', function (data) {
@@ -121,12 +122,19 @@ Socket.prototype.listen = function () {
             gameArea.drawMove(data.x, data.y, data.lineColor);
             if (data.status === 'goalMove') {
                 gameArea.isGoalMove(data.winner, data.score, data.resetGameParams);
-                Dialog.showInfoDialog({
-                   message: "Gooool! " + data.winner + " wygrywa mecz!" 
+                gameArea.lockArea();
+                Dialog.showConfirmDialog({
+                    message: "Gooool! " + data.winner + " wygrywa mecz! Czy chcesz zagrać rewanż?",
+                    confirmCallback: function() {
+                        that.socket.emit('nextGameRequest', true);
+                    },
+                    cancelCallback: function() {
+                        that.socket.emit('nextGameRequest', false);
+                    }
                 });
             } else if (data.status === 'moveNotAvailable') {
                 Dialog.showInfoDialog({
-                   message: "Brak możliwości ruchu! " + data.winner + " wygrywa mecz!" 
+                    message: "Brak możliwości ruchu! " + data.winner + " wygrywa mecz! Czy chcesz zagrać rewanż?"
                 });
             } else if (data.status === 'continueGame') {
                 if (data.currentPlayer === this.nickname) {
@@ -186,6 +194,28 @@ Socket.prototype.listen = function () {
         }
         gameArea.setMoveIcon(data.currentPlayer);
         gameArea.resetTimeForMove();
+    });
+
+    this.socket.on('disconnect', function (data, params) {
+    });
+    
+    this.socket.on('nextGameResponse', function (responseStatus, params) {
+        if(responseStatus === 'waitingForOpponent') {
+            Dialog.showInfoDialog({
+                message: "Oczekiwanie na akceptacje przeciwnika."
+            });
+        } else if(responseStatus === 'startNewGame') {
+            gameArea.startNewGame(params);
+            if(params.currentPlayer === nickname) {
+                gameArea.unlockArea();
+            }
+        } else if(responseStatus === 'opponentNotConfirmNextGame') {
+            Dialog.showInfoDialog({
+                message: "Przeciwnik nie zaakceptował kolejnego meczu"
+            });
+        } else {
+            //TO DO
+        }
     });
 
 };
