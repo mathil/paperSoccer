@@ -17,11 +17,11 @@ var addListeners = function () {
     $("#global-chat-send-message").click(function () {
         sendGlobalChatMessage();
     });
-    
-    $("#global-chat-message").keypress(function(e){
-       if(e.which === 13) {
+
+    $("#global-chat-message").keypress(function (e) {
+        if (e.which === 13) {
             sendGlobalChatMessage();
-       } 
+        }
     });
 
     $("#players-list").on('click', '.player', function () {
@@ -37,11 +37,11 @@ var addListeners = function () {
     $("#game-chat-input-button").click(function () {
         sendGameChatMessage();
     });
-    
-    $("#game-chat-input").keypress(function(e){
-       if(e.which === 13) {
+
+    $("#game-chat-input").keypress(function (e) {
+        if (e.which === 13) {
             sendGameChatMessage();
-       } 
+        }
     });
 
     function sendGlobalChatMessage() {
@@ -74,8 +74,5 @@ $(document).ready(function () {
 //    });
 //    gameArea.initArea();
     addListeners();
-
-
-
 });
 

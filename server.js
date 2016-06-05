@@ -91,7 +91,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('gameChatMessage', function (data) {
         var roomId = usersCollection.getByNickname(socket.nickname).getRoomId();
         io.to(roomId).emit('updateGameChat', {
-            message: '[' + getCurrentTimeAsString() + ']' + socket.nickname + ': ' + data.message
+            message: '[' + getCurrentTimeAsString() + '] ' + socket.nickname + ': ' + data.message
         });
     });
 
@@ -181,23 +181,48 @@ io.sockets.on('connection', function (socket) {
         var game = getGameByRoomId(gameRoomId);
 
         if (isAccept) {
-            if(game.isNextGameAccepted() === null) {
+            if (game.isNextGameAccepted() === null) {
                 socket.emit('nextGameResponse', 'waitingForOpponent');
                 game.acceptNextGame();
-            } else if(game.isNextGameAccepted()) {
+            } else if (game.isNextGameAccepted()) {
                 game.resetGame();
                 io.to(gameRoomId).emit('nextGameResponse', 'startNewGame', game.getStartGameParameters());
-            } else if(!game.isNextGameAccepted()) {
+            } else if (!game.isNextGameAccepted()) {
+                user.setHasGame(false);
+                var opponent = usersCollection.getByNickname(game.getOpponent(socket.nickname));
+                opponent.setHasGame(false);
                 socket.emit('nextGameResponse', 'opponentNotConfirmNextGame');
+                io.sockets.emit('updatePlayersGameStatus', [
+                    {
+                        nickname: opponent.getNickname(),
+                        hasGame: opponent.getHasGame()
+                    },
+                    {
+                        nickname: user.getNickname(),
+                        hasGame: user.getHasGame()
+                    }
+                ]);
             }
         } else {
-            var opponent = game.getOpponent(socket.nickname);
-            io.to(opponent.getId()).emit('nextGameResponse', 'opponentNotConfirmNextGame')
+            user.setHasGame(false);
+            var opponent = usersCollection.getByNickname(game.getOpponent(socket.nickname));
+            opponent.setHasGame(false);
+            io.to(opponent.getId()).emit('nextGameResponse', 'opponentNotConfirmNextGame');
+            io.sockets.emit('updatePlayersGameStatus', [
+                {
+                    nickname: opponent.getNickname(),
+                    hasGame: opponent.getHasGame()
+                },
+                {
+                    nickname: user.getNickname(),
+                    hasGame: user.getHasGame()
+                }
+            ]);
         }
 
     });
-    
-    socket.on('timeForMoveHasGone', function() {
+
+    socket.on('timeForMoveHasGone', function () {
         var gameRoomId = usersCollection.getByNickname(socket.nickname).getRoomId();
         var game = getGameByRoomId(gameRoomId);
         game.changeNextMoveUser();
@@ -205,7 +230,6 @@ io.sockets.on('connection', function (socket) {
             currentPlayer: game.getCurrentPlayer()
         });
     });
-    
 
 });
 

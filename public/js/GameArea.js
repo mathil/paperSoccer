@@ -19,6 +19,7 @@ GameArea.prototype.init = function (params) {
     this.addListeners();
     that = this;
     this.timeForMove = 30000;
+    this.timerHasStopped = false;
     this.initMoveTimer();
 };
 
@@ -207,41 +208,47 @@ GameArea.prototype.clearArea = function (params) {
 };
 
 GameArea.prototype.initMoveTimer = function () {
-    console.log('initmovetimer');
     function updateTimer() {
-        console.log('updateTimer');
-        var timeForMoveAsSecond;
-        if (that.timeForMove > 0) {
-            timeForMoveAsSecond = that.timeForMove / 1000;
-            timeForMoveAsSecond = timeForMoveAsSecond < 10 ? '0' + timeForMoveAsSecond : timeForMoveAsSecond;
-            $("#time").html("0:" + timeForMoveAsSecond);
-            that.timeForMove -= 1000;
-            setTimeout(updateTimer, 1000);
-        } else {
-            SOCKET.getSocket().emit('timeForMoveHasGone');
+        if (that.timerHasStopped) {
+            return;
         }
+        var timeForMoveInSecond;
+        if (that.timeForMove > 0) {
+            timeForMoveInSecond = that.timeForMove / 1000;
+            timeForMoveInSecond = timeForMoveInSecond < 10 ? '0' + timeForMoveInSecond : timeForMoveInSecond;
+            $("#time").html("0:" + timeForMoveInSecond);
+            that.timeForMove -= 1000;
+        } else {
+            if (!that.lock) {
+                SOCKET.getSocket().emit('timeForMoveHasGone');
+            }
+        }
+        setTimeout(updateTimer, 1000);
     }
     ;
     updateTimer();
 };
 
 GameArea.prototype.resetTimeForMove = function () {
-    console.log('resetTimeForMove');
     this.timeForMove = 30000;
+    this.timerHasStopped = false;
 };
 
 GameArea.prototype.addListeners = function () {
     $(document).on('click', '#leave-game', function () {
-
-        Dialog.showConfirmDialog({
-            message: "Czy chcesz opuścić grę?",
-            confirmCallback: function () {
-                console.log('leave game');
-                SOCKET.getSocket().emit('leaveGame');
-                disableGameArea();
-                enableGlobalChat();
-            },
-            cancelCallback: null
+        Dialog.createDialog({
+            message: "Czy na pewno chcesz opuścić grę?",
+            buttons: [
+                {
+                    text: "Opuść",
+                    callback: function (dialogId) {
+                        SOCKET.getSocket().emit('leaveGame');
+                        disableGameArea();
+                        enableGlobalChat();
+                        $("#"+dialogId).remove();
+                    }
+                }
+            ]
         });
     });
 
@@ -250,9 +257,13 @@ GameArea.prototype.addListeners = function () {
     };
 };
 
-GameArea.prototype.startNewGame = function(params) {
+GameArea.prototype.startNewGame = function (params) {
     this.clearArea();
     this.init(params);
     this.initArea();
     this.setMoveIcon(params.currentPlayer);
+};
+
+GameArea.prototype.stopTimer = function () {
+    this.timerHasStopped = true;
 };

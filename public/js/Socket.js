@@ -45,22 +45,31 @@ Socket.prototype.listen = function () {
 
     //Nowe zaproszenie od użytkownika
     this.socket.on('newInvite', function (data) {
-        Dialog.showConfirmDialog({
+        Dialog.createDialog({
             message: data.from + " zaprasza cię do gry. Akceptujesz?",
-            confirmCallback: function () {
-                console.log("zaproszenie");
-                that.socket.emit('inviteResponse', {
-                    'accept': true,
-                    'to': data.from
-                });
-            },
-            cancelCallback: function () {
-                that.socket.emit('inviteResponse', {
-                    'accept': false,
-                    'to': data.from
-                });
-            }
-        });
+            buttons: [
+                {
+                    text: "Akceptuj",
+                    callback: function (dialogId) {
+                        that.socket.emit('inviteResponse', {
+                            'accept': true,
+                            'to': data.from
+                        });
+                        $("#" + dialogId).remove();
+                    }
+                },
+                {
+                    text: "Odrzuć",
+                    callback: function (dialogId) {
+                        that.socket.emit('inviteResponse', {
+                            'accept': false,
+                            'to': data.from
+                        });
+                        $("#" + dialogId).remove();
+                    }
+                }
+            ]
+        })
     });
 
     //Obsługa zdarzenia usunięcia użytkownika
@@ -84,8 +93,16 @@ Socket.prototype.listen = function () {
 
     //Gracz odrzucił zaproszenie do gry
     this.socket.on('inviteRefused', function (data) {
-        Dialog.showInfoDialog({
-            message: "Użytkownik odrzucił zaproszenie"
+        Dialog.createDialog({
+            message: "Przeciwnik odrzucił zaproszenie",
+            buttons: [
+                {
+                    text: "Zamknij",
+                    callback: function (dialogId) {
+                        $("#" + dialogId).remove();
+                    }
+                }
+            ]
         });
     });
 
@@ -108,12 +125,17 @@ Socket.prototype.listen = function () {
     });
 
     this.socket.on('stopGame', function (data) {
-        Dialog.showInfoDialog({
+        Dialog.createDialog({
             message: data.nickname + " opuścił grę",
-            closeCallback: function () {
-                disableGameArea();
-            }
-        });
+            buttons: [
+                {
+                    text: "Zamknij",
+                    callback: function (dialogId) {
+                        $("#" + dialogId).remove();
+                    }
+                }
+            ]
+        })
     });
 
     this.socket.on('validateResponse', function (data) {
@@ -121,20 +143,55 @@ Socket.prototype.listen = function () {
         if (data.status !== 'invalidMove') {
             gameArea.drawMove(data.x, data.y, data.lineColor);
             if (data.status === 'goalMove') {
+                gameArea.stopTimer();
                 gameArea.isGoalMove(data.winner, data.score, data.resetGameParams);
                 gameArea.lockArea();
-                Dialog.showConfirmDialog({
+                Dialog.createDialog({
                     message: "Gooool! " + data.winner + " wygrywa mecz! Czy chcesz zagrać rewanż?",
-                    confirmCallback: function() {
-                        that.socket.emit('nextGameRequest', true);
-                    },
-                    cancelCallback: function() {
-                        that.socket.emit('nextGameRequest', false);
-                    }
+                    buttons: [
+                        {
+                            text: "Zagraj",
+                            callback: function (dialogId) {
+                                that.socket.emit('nextGameRequest', true);
+                                $("#" + dialogId).remove();
+                            }
+                        },
+                        {
+                            text: "Odrzuć",
+                            callback: function (dialogId) {
+                                disableGameArea();
+                                enableGlobalChat();
+                                that.socket.emit('nextGameRequest', false);
+                                $("#" + dialogId).remove();
+                            }
+                        }
+                    ]
                 });
             } else if (data.status === 'moveNotAvailable') {
-                Dialog.showInfoDialog({
-                    message: "Brak możliwości ruchu! " + data.winner + " wygrywa mecz! Czy chcesz zagrać rewanż?"
+                gameArea.stopTimer();
+                gameArea.lockArea();
+                gameArea.isGoalMove(data.winner, data.score, data.resetGameParams);
+                Dialog.createDialog({
+                    message: "Brak możliwości ruchu! " + data.winner + " wygrywa mecz! Czy chcesz zagrać rewanż?",
+                    buttons: [
+                        {
+                            text: "Zagraj",
+                            callback: function (dialogId) {
+                                that.socket.emit('nextGameRequest', true);
+                                $("#" + dialogId).remove();
+
+                            }
+                        },
+                        {
+                            text: "Odrzuć",
+                            callback: function (dialogId) {
+                                disableGameArea();
+                                enableGlobalChat();
+                                that.socket.emit('nextGameRequest', false);
+                                $("#" + dialogId).remove();
+                            }
+                        }
+                    ]
                 });
             } else if (data.status === 'continueGame') {
                 if (data.currentPlayer === this.nickname) {
@@ -154,12 +211,18 @@ Socket.prototype.listen = function () {
     });
 
     this.socket.on('opponentHasLeaveGame', function () {
-        Dialog.showInfoDialog({
-            message: 'przeciwnik zamknął połączenie',
-            closeCallback: function () {
-                disableGameArea();
-                enableGlobalChat();
-            }
+        Dialog.createDialog({
+            message: "Przeciwnik opuścił grę",
+            buttons: [
+                {
+                    text: "Zamknij",
+                    callback: function (dialogId) {
+                        disableGameArea();
+                        enableGlobalChat();
+                        $("#" + dialogId).remove();
+                    }
+                }
+            ]
         });
     });
 
@@ -168,8 +231,16 @@ Socket.prototype.listen = function () {
     });
 
     this.socket.on('receiverHasGame', function (data) {
-        Dialog.showInfoDialog({
-            message: data.receiver + " aktualnie rozgrywa mecz."
+        Dialog.createDialog({
+            message: "Użytkownik aktualnie rozgrywa mecz",
+            buttons: [
+                {
+                    text: "Zamknij",
+                    callback: function (dialogId) {
+                        $("#" + dialogId).remove();
+                    }
+                }
+            ]
         });
     });
 
@@ -198,21 +269,36 @@ Socket.prototype.listen = function () {
 
     this.socket.on('disconnect', function (data, params) {
     });
-    
+
     this.socket.on('nextGameResponse', function (responseStatus, params) {
-        if(responseStatus === 'waitingForOpponent') {
-            Dialog.showInfoDialog({
-                message: "Oczekiwanie na akceptacje przeciwnika."
+        console.log(responseStatus);
+        if (responseStatus === 'waitingForOpponent') {
+            Dialog.createDialog({
+                message: "Oczekiwanie na akceptacje przeciwnika",
             });
-        } else if(responseStatus === 'startNewGame') {
+        } else if (responseStatus === 'startNewGame') {
+            Dialog.removeExistsDialog();
             gameArea.startNewGame(params);
-            if(params.currentPlayer === nickname) {
+            if (params.currentPlayer === nickname) {
                 gameArea.unlockArea();
             }
-        } else if(responseStatus === 'opponentNotConfirmNextGame') {
-            Dialog.showInfoDialog({
-                message: "Przeciwnik nie zaakceptował kolejnego meczu"
+        } else if (responseStatus === 'opponentNotConfirmNextGame') {
+            Dialog.removeExistsDialog();
+            Dialog.createDialog({
+                message: "Przeciwnik nie zaakceptował kolejnego meczu",
+                buttons: [
+                    {
+                        text: "Zamknij",
+                        callback: function (dialogId) {
+                            disableGameArea();
+                            $("#" + dialogId).remove();
+                        }
+                    }
+                ]
             });
+
+
+
         } else {
             //TO DO
         }

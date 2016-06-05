@@ -44,7 +44,7 @@ var Game = function (playerA, playerB, roomId) {
         {x: 45, y: 225},
         {x: 45, y: 270}
     ];
-    
+
     this.rightGoalNodes = [
         {x: 585, y: 180},
         {x: 585, y: 225},
@@ -52,11 +52,11 @@ var Game = function (playerA, playerB, roomId) {
     ];
 
     this.playerAGoalNodes = this.leftGoalNodes;
-    
+
     this.playerBGoalNodes = this.rightGoalNodes;
 
     this.moveHistory = [];
-    
+
     this.nextGameAccepted = null;
 
     that = this;
@@ -122,6 +122,12 @@ Game.prototype.validateMove = function (x, y) {
         } else if (this.getAvailableMovesCount(x, y) === 0) {
             response.status = 'moveNotAvailable';
             response.winner = this.getOpponent(this.currentPlayer);
+            this.increaseScoreForPlayer(response.winner);
+            response.score = this.scorePlayerA + ":" + this.scorePlayerB;
+            response.resetGameParams = {
+                lastPoint: {x: 315,
+                    y: 225}
+            };
         } else {
             response.status = 'continueGame';
         }
@@ -321,10 +327,10 @@ Game.prototype.returnPlayerIfIsGoalMove = function (x, y) {
     return winner;
 };
 
-Game.prototype.increaseScoreForPlayer = function(nickname) {
-    if(this.playerA === nickname) {
+Game.prototype.increaseScoreForPlayer = function (nickname) {
+    if (this.playerA === nickname) {
         this.scorePlayerA++;
-    } else if(this.playerB === nickname) {
+    } else if (this.playerB === nickname) {
         this.scorePlayerB++;
     }
 };
@@ -368,27 +374,23 @@ Game.prototype.resetGame = function () {
         x: 315,
         y: 225
     };
-    
+
     var buffer;
     buffer = this.playerA;
     this.playerA = this.playerB;
     this.playerB = buffer;
-    
+
     buffer = this.scorePlayerA;
     this.scorePlayerA = this.scorePlayerB;
     this.scorePlayerB = buffer;
-    
+
     buffer = this.playerAColorLine;
     this.playerAColorLine = this.playerBColorLine;
-    this.playerBColorLine = buffer; 
-    
-    if(this.scorePlayerA + this.scorePlayerA % 2 === 0) {
-        this.currentPlayer = this.playerA;
-    } else {
-        this.currentPlayer = this.playerB;
-    }
-    
-    
+    this.playerBColorLine = buffer;
+
+    this.currentPlayer = this.playerA;
+
+    this.nextGameAccepted = null;
 };
 
 Game.prototype.getCurrentPlayer = function () {
