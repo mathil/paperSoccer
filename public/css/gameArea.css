@@ -25,17 +25,7 @@
 #score-container {
     text-align: center;
     color: #ffffff;
-    font-size: 200%;
-}
-
-#player-a-nick {
-
-}
-
-#player-b-nick {
-}
-
-#score {
+    font-size: 2vw;
 }
 
 #game-buttons {
@@ -54,7 +44,7 @@
 
 #leave-game {
     float: right;
-    font-size: 150%;
+    font-size: 1.5vw;
     border-radius: 10px;
 }
 
@@ -84,10 +74,11 @@
     width: 99%;
     height: 90%;
     resize: none;
+    font-size: 0.8vw;
 }
 
 #game-chat-input {
-    font-size: 150%;
+    font-size: 1.5vw;
     width: 70%;
     height: 7%;
     padding-left: 2%;
@@ -95,7 +86,7 @@
 }
 
 #game-chat-input-button {
-    font-size: 150%;
+    font-size: 1.5vw;
     width: 25%;
     height: 7%;    
     /*float: right;*/
@@ -103,6 +94,6 @@
 
 #time {
     position: absolute;
-    font-size: 200%;
+    font-size: 1.5vw;
     color: #ffffff;
 }
