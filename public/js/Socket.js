@@ -40,6 +40,7 @@ Socket.prototype.listen = function () {
                 content += "</button>";
             });
             $("#players").html(content);
+            $("#" + nickname).css('font-weight', 'bold');
         }
     });
 
@@ -69,7 +70,7 @@ Socket.prototype.listen = function () {
                     }
                 }
             ]
-        })
+        });
     });
 
     //Obsługa zdarzenia usunięcia użytkownika
@@ -80,8 +81,6 @@ Socket.prototype.listen = function () {
     //Dodanie do listy nowego użytkownika
     this.socket.on('addToPlayersList', function (data) {
         if (data.nickname !== nickname) {
-
-
             var elem = $("<button class='player' id='" + data.nickname + "'>" +
                     data.nickname +
                     "<img id='" + data.nickname + "_hasGame' src='../img/small_ball.png' style='display: none' />" +
@@ -89,7 +88,6 @@ Socket.prototype.listen = function () {
             $("#players").append(elem);
         }
     });
-
 
     //Gracz odrzucił zaproszenie do gry
     this.socket.on('inviteRefused', function (data) {
@@ -106,18 +104,12 @@ Socket.prototype.listen = function () {
         });
     });
 
-
     this.socket.on('startGame', function (data) {
-        //console.log(JSON.stringify(data));
         enableGameArea();
         gameArea.init(data.gameParams);
-        //console.log('nickname ' + nickname);
-        //console.log('data.gameParams.unlockedUser ' + data.gameParams.unlockedUser);
         if (nickname === data.gameParams.currentPlayer) {
-            //console.log('unlockarea');
             gameArea.unlockArea();
         } else {
-            //console.log('lockarea');
             gameArea.lockArea();
         }
         gameArea.initArea();
@@ -203,7 +195,6 @@ Socket.prototype.listen = function () {
                 gameArea.resetTimeForMove();
             }
         }
-
     });
 
     this.socket.on('updateGameChat', function (data) {
@@ -246,8 +237,6 @@ Socket.prototype.listen = function () {
 
     this.socket.on('updatePlayersGameStatus', function (players) {
         players.forEach(function (player) {
-            //console.log('player: ' + player.nickname);
-            //console.log('hasgame: ' + player.hasGame);
             if (player.hasGame) {
                 $("#" + player.nickname + "_hasGame").show();
             } else {
@@ -257,7 +246,6 @@ Socket.prototype.listen = function () {
     });
 
     this.socket.on('changeNextMoveUser', function (data) {
-        console.log('changeNextMoveUser');
         if (nickname === data.currentPlayer) {
             gameArea.unlockArea();
         } else {
@@ -271,7 +259,6 @@ Socket.prototype.listen = function () {
     });
 
     this.socket.on('nextGameResponse', function (responseStatus, params) {
-        console.log(responseStatus);
         if (responseStatus === 'waitingForOpponent') {
             Dialog.createDialog({
                 message: "Oczekiwanie na akceptacje przeciwnika",
@@ -296,11 +283,6 @@ Socket.prototype.listen = function () {
                     }
                 ]
             });
-
-
-
-        } else {
-            //TO DO
         }
     });
 
@@ -312,14 +294,11 @@ var enableGameArea = function () {
 };
 
 var disableGameArea = function () {
-    //console.log('disableGameArea');
     $("#global-chat").show();
     $("#game-area").hide();
-
 }
 
 var enableGlobalChat = function () {
-    //console.log('enableGlobalChat');
     $("#global-chat").show();
     $("#game-area").hide();
 };

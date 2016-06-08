@@ -161,13 +161,11 @@ Game.prototype.isValidPath = function (x, y) {
 
     //Sprawdzenie czy ścieżna nie nachodzi na krawędź boiska
     if (!this.isNotBorder(this.lastPoint.x, this.lastPoint.y, x, y)) {
-        console.log("Jest krawędź");
         return false;
     }
 
     //Sprawdzenie czy ścieżna nie jest już zarejestrowana
     if (this.validatePath(this.lastPoint.x, this.lastPoint.y, x, y)) {
-        console.log("Jest użyta");
         return false;
     }
     return true;
@@ -197,16 +195,16 @@ Game.prototype.initNodesArray = function () {
 };
 
 Game.prototype.shouldNodeBeUsed = function (x, y) {
-    if (x === 315 && y === 225) {
+    if (x === 315 && y === 225) { //środek planszy
         return true;
-    } else if (x === 540 && y === 225) {
+    } else if (x === 540 && y === 225) { //środek bramki
         return false;
-    } else if (x === 90 && y === 225) {
+    } else if (x === 90 && y === 225) { //środek bramki
         return false;
     } else if (x === 90 || x === 540) {
         return true;
-    } else if (y === 315 || y === 225) {
-        return false;
+    } else if (y === 45 || y === 405) {
+        return true;
     }
     return false;
 };
@@ -226,13 +224,13 @@ Game.prototype.setNodeAsUsed = function () {
 
 Game.prototype.isNotBorder = function (startX, startY, endX, endY) {
     if (startX === 90 && endX === 90) {
-//        if (startY < 180 && endY > 290) {
-        return false;
-//        }
+        if (startY < 180 || startY > 270 || endY < 180 || endY > 270) { //bramka
+            return false;
+        }
     } else if (startX === 540 && endX === 540) {
-//        if (startY < 225 && endY > 290) {
-        return false;
-//        }
+        if (startY < 180 || startY > 270 || endY < 180 || endY > 270) { //bramka
+            return false;
+        }
     } else if (startY === 45 && endY === 45) {
         return false;
     } else if (startY === 405 && endY === 405) {
@@ -265,7 +263,7 @@ Game.prototype.getAvailableMovesCount = function (x, y) {
     var availableMoves = 0;
     for (var i = x - 45; i <= x + 45; i += 45) {
         for (var j = y - 45; j <= y + 45; j += 45) {
-            if (!(i === x && j === y) && this.isNodeInArea(i, j) && (i !== this.lastPoint.x && j !== this.lastPoint.y)) {
+            if (!(i === x && j === y) && !(i === this.lastPoint.x && j === this.lastPoint.y) && this.isNodeInArea(i, j) && this.isNotBorder(x, y, i, j)) {
                 if (!this.validatePath(x, y, i, j)) {
                     availableMoves++;
                 }
@@ -276,7 +274,7 @@ Game.prototype.getAvailableMovesCount = function (x, y) {
 };
 
 Game.prototype.isNodeInArea = function (x, y) {
-    if (x <= 45 || y <= 45 || x >= 540 || y >= 405) {
+    if (x < 45 || y < 45 || x > 540 || y > 405) {
         return false;
     }
     return true;

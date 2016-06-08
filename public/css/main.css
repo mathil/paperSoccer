@@ -1,11 +1,18 @@
 body {
-    /*background-color: #228533;*/
     background-image: url(../img/bg.png);
     font-family: arial;
 }
 
 div {
   /*border: 1px solid black;*/
+}
+
+#container {
+    height: 99%;
+    width: 99%;
+    min-width: 640px;
+    min-height: 480px;
+    position: absolute;
 }
 
 button {

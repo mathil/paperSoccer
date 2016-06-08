@@ -45,17 +45,11 @@ GameArea.prototype.initArea = function () {
 
 
         var nearestNode = that.getNearestNode(x, y);
-
+        
         if (!((that.lastPoint.x - 45 <= nearestNode.x && that.lastPoint.x + 45 >= nearestNode.x)
                 && (that.lastPoint.y - 45 <= nearestNode.y && that.lastPoint.y + 45 >= nearestNode.y))) {
             return;
         }
-
-        console.log("-----");
-        console.log("from.x=" + that.lastPoint.x);
-        console.log("from.y=" + that.lastPoint.y);
-        console.log("to.x" + nearestNode.x);
-        console.log("to.y" + nearestNode.y);
 
         SOCKET.getSocket().emit('validateMove', {
             from: {
@@ -136,9 +130,6 @@ GameArea.prototype.drawMove = function (x, y, lineColor) {
 
 GameArea.prototype.isGoalMove = function (player, score, resetGameParams) {
     $("#score").html(score);
-//    this.clearArea();
-//    this.lastPoint = resetGameParams.lastPoint;
-    //console.log(resetGameParams.lastPoint);
 };
 
 GameArea.prototype.drawArea = function () {

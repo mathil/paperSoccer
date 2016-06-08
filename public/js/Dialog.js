@@ -14,7 +14,6 @@ Dialog.createDialog = function (params) {
 
     var dialog = $("<div id='" + id + "'></div>");
     dialog.append("<span class='dialog-message'>" + params.message + "</span>");
-    dialog.append($("<button>", {text: "X"}).addClass('dialog-close-button'));
     var buttonsContainer = $("<div class='dialog-buttons-container'>");
 
     if (params.buttons !== undefined) {
