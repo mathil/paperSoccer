@@ -58,6 +58,15 @@
     position: absolute;
 }
 
+#ball-canvas {
+    /*background-color: transparent;*/
+    width: 90%;
+    height: 80%;
+    margin: auto;
+    top: 15%; bottom: 5%; left: 0; right: 0;
+    position: absolute;
+}
+
 #game-chat-area {
     /*border: 1px solid black;*/
     width: 30%;

@@ -15,12 +15,16 @@ GameArea.prototype.init = function (params) {
     this.lastUserPath = [];
     this.canvas = null;
     this.context = null;
+    this.ballCanvas = null;
+    this.ballContext = null;
     this.setScore(params.scorePlayerA, params.scorePlayerB);
     this.addListeners();
     that = this;
     this.timeForMove = 30000;
     this.timerHasStopped = false;
     this.initMoveTimer();
+    this.ballImage = new Image();
+    this.ballImage.src = "../img/area_ball.png";
 };
 
 
@@ -28,13 +32,16 @@ GameArea.prototype.init = function (params) {
  * Rysowanie planszy gry
  */
 GameArea.prototype.initArea = function () {
+    this.ballCanvas = document.getElementById("ball-canvas");
+    this.ballContext = this.ballCanvas.getContext('2d');
+
     this.nodes = this.fillNodes();
     this.canvas = document.getElementById('game-canvas');
     this.context = this.canvas.getContext('2d');
 
     this.drawArea();
 
-    this.canvas.onclick = function (evt) {
+    this.ballCanvas.onclick = function (evt) {
         if (that.lock) {
             return;
         }
@@ -45,7 +52,7 @@ GameArea.prototype.initArea = function () {
 
 
         var nearestNode = that.getNearestNode(x, y);
-        
+
         if (!((that.lastPoint.x - 45 <= nearestNode.x && that.lastPoint.x + 45 >= nearestNode.x)
                 && (that.lastPoint.y - 45 <= nearestNode.y && that.lastPoint.y + 45 >= nearestNode.y))) {
             return;
@@ -105,9 +112,8 @@ GameArea.prototype.setMoveIcon = function (currentPlayer) {
     } else if (currentPlayer === this.playerB) {
         $("#player-a-move-icon").css('visibility', 'hidden');
         $("#player-b-move-icon").css('visibility', 'visible');
-
     }
-}
+};
 
 GameArea.prototype.setScore = function (scorePlayerA, scorePlayerB) {
     $("#player-a-nick").html(this.playerA);
@@ -118,12 +124,22 @@ GameArea.prototype.setScore = function (scorePlayerA, scorePlayerB) {
 };
 
 GameArea.prototype.drawMove = function (x, y, lineColor) {
+    this.ballContext.clearRect(0, 0, this.ballCanvas.width, this.ballCanvas.height);
     this.context.strokeStyle = lineColor;
     this.context.lineWidth = 2;
     this.context.beginPath();
     this.context.moveTo(this.lastPoint.x, this.lastPoint.y);
     this.context.lineTo(x, y);
     this.context.stroke();
+    
+    this.ballContext.strokeStyle = lineColor;
+    this.ballContext.lineWidth = 3;
+    this.ballContext.beginPath();
+    this.ballContext.moveTo(this.lastPoint.x, this.lastPoint.y);
+    this.ballContext.lineTo(x, y);
+    this.ballContext.stroke();
+    this.ballContext.drawImage(this.ballImage, x - 5, y - 5);
+    
     this.lastPoint.x = x;
     this.lastPoint.y = y;
 };
@@ -136,8 +152,14 @@ GameArea.prototype.drawArea = function () {
     this.canvas = document.getElementById('game-canvas');
     this.context = this.canvas.getContext('2d');
 
+    this.ballCanvas = document.getElementById('ball-canvas');
+    this.ballContext = this.ballCanvas.getContext('2d');
+
     this.canvas.width = 630;
     this.canvas.height = 450;
+    
+    this.ballCanvas.width = 630;
+    this.ballCanvas.height = 450;
 
     this.context.strokeStyle = '#ffffff';
     this.context.lineWidth = 4;
@@ -189,8 +211,8 @@ GameArea.prototype.drawArea = function () {
     }
     this.context.fillRect(90, 225, 2, 2);
     this.context.fillRect(540, 225, 2, 2);
-
     this.context.stroke();
+
 };
 
 GameArea.prototype.clearArea = function (params) {
@@ -236,7 +258,7 @@ GameArea.prototype.addListeners = function () {
                         SOCKET.getSocket().emit('leaveGame');
                         disableGameArea();
                         enableGlobalChat();
-                        $("#"+dialogId).remove();
+                        $("#" + dialogId).remove();
                     }
                 }
             ]

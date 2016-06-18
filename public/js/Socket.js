@@ -27,7 +27,7 @@ Socket.prototype.listen = function () {
 //            that.socket.disconnected();
         } else {
             this.nickname = $("#login").val();
-            $("#login-form").hide();
+            $("#login-form").remove();
             $("#global-chat").show();
             var content = "";
             (data.players).forEach(function (player) {
