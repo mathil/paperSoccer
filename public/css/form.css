@@ -1,0 +1,78 @@
+.form {
+    background-color: #007F33;
+    border-radius: 20px;
+    display: block;
+    width: 30%;
+    height: 30%;
+    margin: auto;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    text-align: center;
+}
+
+.form-field {
+    display: block;
+    margin: 0 auto;
+    width: 80%;
+    font-size: 2vw;
+    text-align: center;
+}
+
+#login-form-form #registration-form-form {
+    margin-top: 3%;
+}
+
+
+#password {
+    margin-top: 2%;
+}
+
+#login-form-submit, #registration-form-submit {
+    display: block;
+    margin: 0 auto;
+    width: 60%;
+    color: #ffffff;
+    background-color: #00BF4D;
+    margin-top: 10px;
+    font-size: 1.5vw;
+}
+
+#login-message, #registration-invalid-message{
+    font-size: 1vw;
+    margin: 0 auto; 
+    display: block;
+    height: 10%;
+    text-align: center;
+    color: #ffffff;
+}
+
+#registration-form {
+    height: 40%;
+}
+
+#registration-email {
+    margin-top: 2%;
+}
+
+#registration-password {
+    margin-top: 2%;
+}
+
+#registration-password-confirm {
+    margin-top: 2%;
+}
+
+#show-registration-form, #show-login-form {
+    display: block;
+    margin-top: 2%;
+    color: #ffffff;
+    text-decoration: underline;
+    font-size: 1vw;
+}
+
+
+
+
+
+
+

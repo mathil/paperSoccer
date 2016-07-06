@@ -22,9 +22,11 @@ GameArea.prototype.init = function (params) {
     that = this;
     this.timeForMove = 30000;
     this.timerHasStopped = false;
-    this.initMoveTimer();
+
     this.ballImage = new Image();
     this.ballImage.src = "../img/area_ball.png";
+
+    this.initMoveTimer();
 };
 
 
@@ -40,6 +42,11 @@ GameArea.prototype.initArea = function () {
     this.context = this.canvas.getContext('2d');
 
     this.drawArea();
+
+    this.ballImage.onload = function () {
+        console.log('onload');
+        that.ballContext.drawImage(this, that.lastPoint.x - 5, that.lastPoint.y - 5);
+    };
 
     this.ballCanvas.onclick = function (evt) {
         if (that.lock) {
@@ -57,6 +64,9 @@ GameArea.prototype.initArea = function () {
                 && (that.lastPoint.y - 45 <= nearestNode.y && that.lastPoint.y + 45 >= nearestNode.y))) {
             return;
         }
+
+        console.log(x);
+        console.log(y);
 
         SOCKET.getSocket().emit('validateMove', {
             from: {
@@ -131,7 +141,7 @@ GameArea.prototype.drawMove = function (x, y, lineColor) {
     this.context.moveTo(this.lastPoint.x, this.lastPoint.y);
     this.context.lineTo(x, y);
     this.context.stroke();
-    
+
     this.ballContext.strokeStyle = lineColor;
     this.ballContext.lineWidth = 3;
     this.ballContext.beginPath();
@@ -139,7 +149,7 @@ GameArea.prototype.drawMove = function (x, y, lineColor) {
     this.ballContext.lineTo(x, y);
     this.ballContext.stroke();
     this.ballContext.drawImage(this.ballImage, x - 5, y - 5);
-    
+
     this.lastPoint.x = x;
     this.lastPoint.y = y;
 };
@@ -157,11 +167,11 @@ GameArea.prototype.drawArea = function () {
 
     this.canvas.width = 630;
     this.canvas.height = 450;
-    
+
     this.ballCanvas.width = 630;
     this.ballCanvas.height = 450;
 
-    this.context.strokeStyle = '#ffffff';
+    this.context.strokeStyle = '#FFFFFF';
     this.context.lineWidth = 4;
     this.context.lineCap = 'butt';
     this.context.fillStyle = "#FFFFFF";

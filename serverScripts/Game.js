@@ -274,7 +274,7 @@ Game.prototype.getAvailableMovesCount = function (x, y) {
 };
 
 Game.prototype.isNodeInArea = function (x, y) {
-    if (x < 45 || y < 45 || x > 540 || y > 405) {
+    if (x < 90 || y < 45 || x > 540 || y > 405) {
         return false;
     }
     return true;

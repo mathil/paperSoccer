@@ -5,7 +5,7 @@ var Socket = function (nickname) {
 };
 
 Socket.prototype.connect = function () {
-    this.socket = io.connect('http://192.168.1.16:8080');
+    this.socket = io.connect('http://localhost:8080');
 };
 
 Socket.prototype.getSocket = function () {
@@ -18,30 +18,6 @@ Socket.prototype.listen = function () {
     //Aktualizacja czatu globalnego
     this.socket.on('updateGlobalChat', function (data) {
         $("#global-chat-area").val($("#global-chat-area").val() + '\n' + data.message);
-    });
-
-    //Odpowiedź na żądanie zalogowania
-    this.socket.on('loginResponse', function (data) {
-        if (data.isUserExists) {
-            $("#login-message").html("Użytkownik o takiej nazwie jest już w systemie");
-//            that.socket.disconnected();
-        } else {
-            this.nickname = $("#login").val();
-            $("#login-form").remove();
-            $("#global-chat").show();
-            var content = "";
-            (data.players).forEach(function (player) {
-                content += "<button class='player' id='" + player.nickname + "'>" + player.nickname;
-                if (player.hasGame) {
-                    content += " <img id='" + player.nickname + "_hasGame' src='../img/small_ball.png'/>";
-                } else {
-                    content += " <img id='" + player.nickname + "_hasGame' src='../img/small_ball.png' style='display: none;'/>";
-                }
-                content += "</button>";
-            });
-            $("#players").html(content);
-            $("#" + nickname).css('font-weight', 'bold');
-        }
     });
 
     //Nowe zaproszenie od użytkownika

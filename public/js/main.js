@@ -3,17 +3,6 @@ var SOCKET;
 var nickname;
 
 var addListeners = function () {
-    $('#login-form-form').submit(function (evt) {
-        evt.preventDefault();
-        nickname = $("#login").val();
-        SOCKET = new Socket(nickname);
-        SOCKET.connect();
-        SOCKET.listen();
-        SOCKET.getSocket().emit('login', {
-            nickname: $('#login').val()
-        });
-    });
-
     $("#global-chat-send-message").click(function () {
         sendGlobalChatMessage();
     });
@@ -58,21 +47,10 @@ var addListeners = function () {
         $("#game-chat-input").val("");
     }
 
-
 };
 
-
 $(document).ready(function () {
-//    enableGameArea();
-//    $("#global-chat").show();
-//    $("#login-form").hide();
-//    gameArea.setBasicParameters({
-//        playerA: 'gracz1',
-//        playerB: 'gracz2',
-//        playerAColorLine: '#fffff',
-//        playerBColorLine: '#fffff',
-//    });
-//    gameArea.initArea();
     addListeners();
+    (new Forms()).init();
 });
 

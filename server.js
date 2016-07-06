@@ -8,11 +8,13 @@ var games = [];
 
 app.set('view engine', 'ejs');
 
-var Game = require('./logic/Game.js');
-var User = require('./logic/User.js');
-var UsersCollection = require('./logic/UsersCollection.js');
+var Game = require('./serverScripts/Game.js');
+var User = require('./serverScripts/User.js');
+var UsersCollection = require('./serverScripts/UsersCollection.js');
+var QueryBuilder = require('./serverScripts/QueryBuilder.js');
 
 var usersCollection = new UsersCollection();
+var queryBuilder = new QueryBuilder();
 
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/lib'));
@@ -28,37 +30,56 @@ app.get('/', function (req, res) {
 var io = require('socket.io').listen(app.listen(port));
 console.log('Serwer nasłuchuje na porcie ' + port);
 
-
+//
+//var as = queryBuilder.checkLogin('mateusz', 'mateusz');
+//console.log(as);
 
 
 io.sockets.on('connection', function (socket) {
 
     //Mechanizm logowania do gry
-    socket.on('login', function (data, callback) {
-        var isUserExists = false;
-
-        if (usersCollection.isExists(data.nickname)) {
-            isUserExists = true;
-        } else {
-            socket.nickname = data.nickname;
-            user = new User(data.nickname, socket.id);
-            usersCollection.add(user);
-            console.log(data.nickname + " podłączył się. Liczba użytkowników: " + usersCollection.getSize());
-        }
-        socket.emit('loginResponse', {
-            isUserExists: isUserExists,
-            players: usersCollection.getList()
+    socket.on('login', function (nickname, password, loginResponse) {
+        queryBuilder.checkLogin(nickname, password, function (result) {
+            if (result) {
+                usersCollection.add(new User(nickname, socket.id));
+                var loggedUsers = usersCollection.getList();
+                io.sockets.emit('addToPlayersList', {
+                    nickname: socket.nickname
+                });
+                loginResponse(result, loggedUsers);
+            } else {
+                loginResponse(result, null);
+            }
         });
+    });
 
-        io.sockets.emit('addToPlayersList', {
-            nickname: socket.nickname
+    //Rejestracja nowego użytkownika
+    socket.on('registration', function (formData, registrationResponse) {
+        queryBuilder.checkIsUserExists(formData.nick, formData.email, function (isExists) {
+            if (!isExists) {
+                if (formData.password !== formData.passwordConfirm) {
+                    registrationResponse(false, "Hasło nie jest takie samo");
+                } else {
+                    queryBuilder.insertUser(formData.nick, formData.email, formData.password, function (success) {
+                        if (success) {
+                            registrationResponse(true, null);
+                        } else {
+                            registrationResponse(false, "Wystąpił błąd podczas tworzenia konta.");
+                        }
+                    });
+                }
+            } else {
+                registrationResponse(false, "W systemie istnieje użytkownik o takim loginie lub haśle");
+            }
         });
-
     });
 
     //Obsługa rozłączenia użytkownika
     socket.on('disconnect', function () {
         var user = usersCollection.getByNickname(socket.nickname);
+        if (user === null) {
+            return;
+        }
         usersCollection.remove(socket.nickname);
         console.log(user.getNickname() + " rozłączył się. Liczba użytkowników: " + usersCollection.getSize());
         io.sockets.emit('removeFromPlayersList', {
