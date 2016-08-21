@@ -1,20 +1,24 @@
 
 #game-area {
-    display: none;
     background-color: #007F33;
     border-radius: 10px;
     margin: auto;
+    margin-top: 100px;
     position: absolute;
     left: 0; right: 0; top: 0; bottom: 0;
     width: 80%;
+    min-width: 800px;
+    max-width: 1200px;
     height: 80%;
+    min-height: 400px;
+    display: block;
 
 }
 
 
 #game {
-    /*border: 1px solid black;*/
     width: 65%;
+    min-width: 600px;
     height: 90%;
     position: absolute;
     margin: auto;
@@ -25,7 +29,7 @@
 #score-container {
     text-align: center;
     color: #ffffff;
-    font-size: 2vw;
+    font-size: 24px;
 }
 
 #game-buttons {
@@ -44,7 +48,7 @@
 
 #leave-game {
     float: right;
-    font-size: 1.5vw;
+    font-size: 18px;
     border-radius: 10px;
 }
 
@@ -68,8 +72,8 @@
 }
 
 #game-chat-area {
-    /*border: 1px solid black;*/
     width: 30%;
+    min-width: 320px;
     height: 90%;
     position: absolute;
     margin: auto;
@@ -83,11 +87,10 @@
     width: 99%;
     height: 90%;
     resize: none;
-    font-size: 0.8vw;
 }
 
 #game-chat-input {
-    font-size: 1.5vw;
+    font-size: 24px;
     width: 70%;
     height: 7%;
     padding-left: 2%;
@@ -95,7 +98,7 @@
 }
 
 #game-chat-input-button {
-    font-size: 1.5vw;
+    font-size: 24px;
     width: 25%;
     height: 7%;    
     /*float: right;*/
@@ -106,3 +109,50 @@
     font-size: 1.5vw;
     color: #ffffff;
 }
+
+
+@media screen and (max-width: 1200px) {
+
+    #game-area {
+        width: 400px;
+        height: 110%;
+    }
+
+    #game {
+        width: 100px;
+        min-width: 430px;
+        float: left;
+    }
+
+    #game-chat {
+        height: 650px;
+    }
+
+    #score-container {
+        width: 400px;
+    }
+
+    #game-buttons {
+        width: 400px;
+        float: left;
+        margin-left: 0px;
+    }
+
+
+    #game-canvas, #ball-canvas {
+        transform: rotate(90deg);
+        height: 400px;
+        width: 600px;
+        margin-top: 100px;
+        margin-left: -100px;
+    }
+
+
+
+    #game-chat-area {
+        width: 200px;
+        /*float: left;*/
+    }
+
+}
+

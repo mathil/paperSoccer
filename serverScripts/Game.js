@@ -114,6 +114,7 @@ Game.prototype.validateMove = function (x, y) {
         if (goalForPlayer !== null) {
             response.status = 'goalMove';
             response.winner = goalForPlayer;
+            response.loser = this.playerA === goalForPlayer ? this.playerB : this.playerA;
             response.score = this.scorePlayerA + ":" + this.scorePlayerB;
             response.resetGameParams = {
                 lastPoint: {x: 315,
@@ -405,10 +406,6 @@ Game.prototype.acceptNextGame = function () {
 Game.prototype.discardNextGame = function () {
     this.nextGameAccepted = false;
 };
-
-
-
-
 
 
 

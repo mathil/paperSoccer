@@ -1,78 +1,50 @@
 .form {
-    background-color: #007F33;
-    border-radius: 20px;
     display: block;
-    width: 30%;
-    height: 30%;
+    width: 100%;
+    max-width: 420px;
+    height: 200px;
     margin: auto;
     position: absolute;
     top: 0; left: 0; bottom: 0; right: 0;
     text-align: center;
-}
-
-.form-field {
-    display: block;
-    margin: 0 auto;
-    width: 80%;
-    font-size: 2vw;
-    text-align: center;
-}
-
-#login-form-form #registration-form-form {
-    margin-top: 3%;
-}
-
-
-#password {
-    margin-top: 2%;
-}
-
-#login-form-submit, #registration-form-submit {
-    display: block;
-    margin: 0 auto;
-    width: 60%;
-    color: #ffffff;
-    background-color: #00BF4D;
-    margin-top: 10px;
-    font-size: 1.5vw;
-}
-
-#login-message, #registration-invalid-message{
-    font-size: 1vw;
-    margin: 0 auto; 
-    display: block;
-    height: 10%;
-    text-align: center;
-    color: #ffffff;
+    background-color: #009E32;
+    border-radius: 10px;
 }
 
 #registration-form {
-    height: 40%;
+    height: 320px;
 }
 
-#registration-email {
-    margin-top: 2%;
-}
-
-#registration-password {
-    margin-top: 2%;
-}
-
-#registration-password-confirm {
-    margin-top: 2%;
-}
-
-#show-registration-form, #show-login-form {
+.invalid-message {
     display: block;
-    margin-top: 2%;
+    height: 5%;
     color: #ffffff;
-    text-decoration: underline;
-    font-size: 1vw;
 }
 
+.form-field {
+    margin-top: 3%;
+    width: 90%;
+    font-size: 24px;
+}
 
+.login-register-switcher {
+    color: #ffffff;
+    display: block;
+    margin-top: 5%;
+}
 
+.submit-button {
+    margin-top: 5%;
+    width: 40%;
+    font-size: 24px;
+    color: #ffffff;
+    background-color: #007525;
+    border: none;
+}
 
-
-
-
+@media screen and (max-width: 320px) {
+    .form {
+        max-width: 300px;
+        display: block;
+    }
+}

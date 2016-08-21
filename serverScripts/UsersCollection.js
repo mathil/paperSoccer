@@ -53,7 +53,6 @@ UsersCollection.prototype.getList = function() {
     this.users.forEach(function(user){
         list.push({
             nickname: user.getNickname(),
-            id: user.getId(),
             hasGame: user.getHasGame()
         });
     });

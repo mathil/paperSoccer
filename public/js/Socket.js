@@ -1,11 +1,12 @@
 
 var Socket = function (nickname) {
+    console.log('socket.nickname=' + nickname);
     this.socket = null;
     this.nickname = nickname;
 };
 
 Socket.prototype.connect = function () {
-    this.socket = io.connect('http://localhost:8080');
+    this.socket = io.connect('http://192.168.1.16:8080');
 };
 
 Socket.prototype.getSocket = function () {
@@ -21,27 +22,21 @@ Socket.prototype.listen = function () {
     });
 
     //Nowe zaproszenie od użytkownika
-    this.socket.on('newInvite', function (data) {
+    this.socket.on('inviteRequest', function (from) {
         Dialog.createDialog({
-            message: data.from + " zaprasza cię do gry. Akceptujesz?",
+            message: from + " zaprasza cię do gry. Akceptujesz?",
             buttons: [
                 {
                     text: "Akceptuj",
                     callback: function (dialogId) {
-                        that.socket.emit('inviteResponse', {
-                            'accept': true,
-                            'to': data.from
-                        });
+                        that.socket.emit('inviteResponse', true, from);
                         $("#" + dialogId).remove();
                     }
                 },
                 {
                     text: "Odrzuć",
                     callback: function (dialogId) {
-                        that.socket.emit('inviteResponse', {
-                            'accept': false,
-                            'to': data.from
-                        });
+                        that.socket.emit('inviteResponse', false, from);
                         $("#" + dialogId).remove();
                     }
                 }
@@ -56,7 +51,7 @@ Socket.prototype.listen = function () {
 
     //Dodanie do listy nowego użytkownika
     this.socket.on('addToPlayersList', function (data) {
-        if (data.nickname !== nickname) {
+        if (data.nickname !== that.nickname) {
             var elem = $("<button class='player' id='" + data.nickname + "'>" +
                     data.nickname +
                     "<img id='" + data.nickname + "_hasGame' src='../img/small_ball.png' style='display: none' />" +
@@ -81,15 +76,22 @@ Socket.prototype.listen = function () {
     });
 
     this.socket.on('startGame', function (data) {
-        enableGameArea();
-        gameArea.init(data.gameParams);
-        if (nickname === data.gameParams.currentPlayer) {
-            gameArea.unlockArea();
-        } else {
-            gameArea.lockArea();
-        }
-        gameArea.initArea();
-        gameArea.setMoveIcon(data.gameParams.currentPlayer);
+        Dialog.removeExistsDialog();
+        $("#global-chat").hide();
+        $("#container").load("../views/game.html", function () {
+            gameArea = new GameArea();
+            gameArea.init(data.gameParams);
+            console.log(that.nickname);
+            console.log(data.gameParams.currentPlayer);
+            if (that.nickname === data.gameParams.currentPlayer) {
+                gameArea.unlockArea();
+            } else {
+                gameArea.lockArea();
+            }
+            gameArea.initGameAreaListeners();
+            gameArea.setMoveIcon(data.gameParams.currentPlayer);
+
+        });
     });
 
     this.socket.on('stopGame', function (data) {
@@ -99,6 +101,7 @@ Socket.prototype.listen = function () {
                 {
                     text: "Zamknij",
                     callback: function (dialogId) {
+                        showGlobalChatAndRemoveGameArea();
                         $("#" + dialogId).remove();
                     }
                 }
@@ -107,6 +110,7 @@ Socket.prototype.listen = function () {
     });
 
     this.socket.on('validateResponse', function (data) {
+        console.log(data);
 
         if (data.status !== 'invalidMove') {
             gameArea.drawMove(data.x, data.y, data.lineColor);
@@ -127,8 +131,7 @@ Socket.prototype.listen = function () {
                         {
                             text: "Odrzuć",
                             callback: function (dialogId) {
-                                disableGameArea();
-                                enableGlobalChat();
+                                showGlobalChatAndRemoveGameArea();
                                 that.socket.emit('nextGameRequest', false);
                                 $("#" + dialogId).remove();
                             }
@@ -153,8 +156,7 @@ Socket.prototype.listen = function () {
                         {
                             text: "Odrzuć",
                             callback: function (dialogId) {
-                                disableGameArea();
-                                enableGlobalChat();
+                                showGlobalChatAndRemoveGameArea();
                                 that.socket.emit('nextGameRequest', false);
                                 $("#" + dialogId).remove();
                             }
@@ -162,7 +164,7 @@ Socket.prototype.listen = function () {
                     ]
                 });
             } else if (data.status === 'continueGame') {
-                if (data.currentPlayer === this.nickname) {
+                if (data.currentPlayer === that.nickname) {
                     gameArea.unlockArea();
                 } else {
                     gameArea.lockArea();
@@ -184,8 +186,7 @@ Socket.prototype.listen = function () {
                 {
                     text: "Zamknij",
                     callback: function (dialogId) {
-                        disableGameArea();
-                        enableGlobalChat();
+                        showGlobalChatAndRemoveGameArea();
                         $("#" + dialogId).remove();
                     }
                 }
@@ -222,7 +223,7 @@ Socket.prototype.listen = function () {
     });
 
     this.socket.on('changeNextMoveUser', function (data) {
-        if (nickname === data.currentPlayer) {
+        if (that.nickname === data.currentPlayer) {
             gameArea.unlockArea();
         } else {
             gameArea.lockArea();
@@ -242,7 +243,7 @@ Socket.prototype.listen = function () {
         } else if (responseStatus === 'startNewGame') {
             Dialog.removeExistsDialog();
             gameArea.startNewGame(params);
-            if (params.currentPlayer === nickname) {
+            if (params.currentPlayer === that.nickname) {
                 gameArea.unlockArea();
             }
         } else if (responseStatus === 'opponentNotConfirmNextGame') {
@@ -253,7 +254,7 @@ Socket.prototype.listen = function () {
                     {
                         text: "Zamknij",
                         callback: function (dialogId) {
-                            disableGameArea();
+                            showGlobalChatAndRemoveGameArea();
                             $("#" + dialogId).remove();
                         }
                     }
@@ -262,21 +263,6 @@ Socket.prototype.listen = function () {
         }
     });
 
-};
-
-var enableGameArea = function () {
-    $("#global-chat").hide();
-    $("#game-area").show();
-};
-
-var disableGameArea = function () {
-    $("#global-chat").show();
-    $("#game-area").hide();
-}
-
-var enableGlobalChat = function () {
-    $("#global-chat").show();
-    $("#game-area").hide();
 };
 
 var addPlayerToList = function (nickname, hasGame) {

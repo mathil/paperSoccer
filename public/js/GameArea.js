@@ -26,21 +26,24 @@ GameArea.prototype.init = function (params) {
     this.ballImage = new Image();
     this.ballImage.src = "../img/area_ball.png";
 
+    this.viewMode = "landscape";
+
     this.initMoveTimer();
+    this.initChatListeners();
+    this.initMediaQueryListener();
 };
 
 
 /**
  * Rysowanie planszy gry
  */
-GameArea.prototype.initArea = function () {
+GameArea.prototype.initGameAreaListeners = function () {
     this.ballCanvas = document.getElementById("ball-canvas");
     this.ballContext = this.ballCanvas.getContext('2d');
 
     this.nodes = this.fillNodes();
     this.canvas = document.getElementById('game-canvas');
     this.context = this.canvas.getContext('2d');
-
     this.drawArea();
 
     this.ballImage.onload = function () {
@@ -54,9 +57,14 @@ GameArea.prototype.initArea = function () {
         }
 
         var rect = that.canvas.getBoundingClientRect();
-        var x = Math.round((evt.clientX - rect.left) * (that.canvas.width / that.canvas.offsetWidth));
-        var y = Math.round((evt.clientY - rect.top) * (that.canvas.height / that.canvas.offsetHeight));
-
+        var x, y;
+        if (that.viewMode === 'landscape') {
+            x = Math.round((evt.clientX - rect.left) * (that.canvas.width / that.canvas.offsetWidth));
+            y = Math.round((evt.clientY - rect.top) * (that.canvas.height / that.canvas.offsetHeight));
+        } else if (that.viewMode === 'portrait') {
+            x = Math.round((evt.clientY - rect.top) * (that.canvas.width / that.canvas.offsetWidth));
+            y = that.canvas.height - Math.round((evt.clientX - rect.left) * (that.canvas.height / that.canvas.offsetHeight));
+        }
 
         var nearestNode = that.getNearestNode(x, y);
 
@@ -64,9 +72,6 @@ GameArea.prototype.initArea = function () {
                 && (that.lastPoint.y - 45 <= nearestNode.y && that.lastPoint.y + 45 >= nearestNode.y))) {
             return;
         }
-
-        console.log(x);
-        console.log(y);
 
         SOCKET.getSocket().emit('validateMove', {
             from: {
@@ -159,11 +164,11 @@ GameArea.prototype.isGoalMove = function (player, score, resetGameParams) {
 };
 
 GameArea.prototype.drawArea = function () {
-    this.canvas = document.getElementById('game-canvas');
-    this.context = this.canvas.getContext('2d');
-
-    this.ballCanvas = document.getElementById('ball-canvas');
-    this.ballContext = this.ballCanvas.getContext('2d');
+//    this.canvas = document.getElementById('game-canvas');
+//    this.context = this.canvas.getContext('2d');
+//
+//    this.ballCanvas = document.getElementById('ball-canvas');
+//    this.ballContext = this.ballCanvas.getContext('2d');
 
     this.canvas.width = 630;
     this.canvas.height = 450;
@@ -266,27 +271,59 @@ GameArea.prototype.addListeners = function () {
                     text: "Opuść",
                     callback: function (dialogId) {
                         SOCKET.getSocket().emit('leaveGame');
-                        disableGameArea();
-                        enableGlobalChat();
+                        showGlobalChatAndRemoveGameArea();
                         $("#" + dialogId).remove();
                     }
                 }
             ]
         });
     });
-
-    window.onbeforeunload = function (evt) {
-        alert('ads');
-    };
 };
 
 GameArea.prototype.startNewGame = function (params) {
     this.clearArea();
     this.init(params);
-    this.initArea();
+    this.initGameAreaListeners();
     this.setMoveIcon(params.currentPlayer);
 };
 
 GameArea.prototype.stopTimer = function () {
     this.timerHasStopped = true;
+};
+
+GameArea.prototype.initChatListeners = function () {
+    $("#game-chat-input-button").click(function () {
+        sendGameChatMessage();
+    });
+
+    $("#game-chat-input").keypress(function (e) {
+        if (e.which === 13) {
+            sendGameChatMessage();
+        }
+    });
+
+    function sendGameChatMessage() {
+        SOCKET.getSocket().emit('gameChatMessage', {
+            message: $("#game-chat-input").val()
+        });
+        $("#game-chat-input").val("");
+    }
+};
+
+GameArea.prototype.initMediaQueryListener = function () {
+    var mobileViewport = window.matchMedia("screen and (max-width: 1200px)");
+
+    if (mobileViewport.matches) {
+        that.viewMode = "portrait";
+    } else {
+        that.viewMode = "landscape";
+    }
+
+    mobileViewport.addListener(function (mq) {
+        if (mq.matches) {
+            that.viewMode = "portrait";
+        } else {
+            that.viewMode = "landscape";
+        }
+    });
 };

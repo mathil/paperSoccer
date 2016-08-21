@@ -1,44 +1,29 @@
 body {
     background-image: url(../img/background.png);
-    background-size: 100% auto;
+    /*background-size: 100% auto;*/
     font-family: arial;
+}
+
+#container, #global-chat-container {
+    position: absolute;
+    width: 99%;
+    min-width: 300px;
+    height: 90%;
+    min-height: 600px;
+    margin: 0 auto;
 }
 
 div {
     /*border: 1px solid black;*/
 }
 
-#container {
-    /*border: 1px solid black;*/
-    height: 99%;
-    width: 99%;
-    min-width: 640px;
-    min-height: 480px;
-    position: absolute;
-}
-
-button {
-    background-color: #00BF4D;
-    color: #ffffff;
-    border: none;
-}
-
-
-.player {
-    width: 100%;
-    background-color: transparent;
-    font-size: 1vw;
-}
-
-#header {
-    background-color: #007F33;
-    color: #ffffff;
-    width: 100%;
-    height: 5%;
-    font-size: 1vw;
-    text-align: center;
-}
-
-.menu-item {
-    color: #ffffff;
+@media screen and (max-width: 1000px) {
+    
+    .menu-button {
+        width: 100%;
+        float: left;
+        margin-top: 5px;
+        height: 30px;
+    }
+    
 }

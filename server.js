@@ -6,7 +6,7 @@ var port = 8080;
 var rooms = [];
 var games = [];
 
-app.set('view engine', 'ejs');
+app.set('view engine', 'html');
 
 var Game = require('./serverScripts/Game.js');
 var User = require('./serverScripts/User.js');
@@ -19,46 +19,42 @@ var queryBuilder = new QueryBuilder();
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/lib'));
 
-
-
-// index
+// index    
 app.get('/', function (req, res) {
-    res.render('index');
+    res.sendFile(__dirname + '/public/views/index.html');
 });
-
 
 var io = require('socket.io').listen(app.listen(port));
 console.log('Serwer nasłuchuje na porcie ' + port);
 
-//
-//var as = queryBuilder.checkLogin('mateusz', 'mateusz');
-//console.log(as);
-
-
 io.sockets.on('connection', function (socket) {
-
     //Mechanizm logowania do gry
     socket.on('login', function (nickname, password, loginResponse) {
         queryBuilder.checkLogin(nickname, password, function (result) {
             if (result) {
-                usersCollection.add(new User(nickname, socket.id));
-                var loggedUsers = usersCollection.getList();
-                io.sockets.emit('addToPlayersList', {
-                    nickname: socket.nickname
-                });
-                loginResponse(result, loggedUsers);
+                if (usersCollection.isExists(nickname)) {
+                    loginResponse(result, true);
+                } else {
+                    socket.nickname = nickname;
+                    usersCollection.add(new User(nickname, socket.id));
+                    io.sockets.emit('addToPlayersList', {
+                        nickname: socket.nickname
+                    });
+                    loginResponse(result, false);
+
+                }
             } else {
-                loginResponse(result, null);
+                loginResponse(result, false);
             }
         });
     });
 
     //Rejestracja nowego użytkownika
     socket.on('registration', function (formData, registrationResponse) {
-        queryBuilder.checkIsUserExists(formData.nick, formData.email, function (isExists) {
+        queryBuilder.checkIfUserExists(formData.nick, formData.email, function (isExists) {
             if (!isExists) {
                 if (formData.password !== formData.passwordConfirm) {
-                    registrationResponse(false, "Hasło nie jest takie samo");
+                    registrationResponse(false, "Podane hasła nie są takie same");
                 } else {
                     queryBuilder.insertUser(formData.nick, formData.email, formData.password, function (success) {
                         if (success) {
@@ -69,7 +65,7 @@ io.sockets.on('connection', function (socket) {
                     });
                 }
             } else {
-                registrationResponse(false, "W systemie istnieje użytkownik o takim loginie lub haśle");
+                registrationResponse(false, "W systemie istnieje użytkownik o takim loginie lub adresie email");
             }
         });
     });
@@ -117,23 +113,23 @@ io.sockets.on('connection', function (socket) {
     });
 
     //Zaproszenie do gry
-    socket.on('invite', function (data) {
-        console.log("Zaproszenie do gry od " + data.from + " dla " + data.to);
+    socket.on('invite', function (opponentNickname, callback) {
+        console.log("Zaproszenie do gry od " + socket.nickname + " dla " + opponentNickname);
 
-        var receiver = usersCollection.getByNickname(data.to);
-
-        if (receiver.getHasGame()) {
-            io.to(socket.id).emit('receiverHasGame', {receiver: receiver.getNickname()});
+        var opponent = usersCollection.getByNickname(opponentNickname);
+        console.log(opponent);
+        if (opponent.getHasGame()) {
+            callback('opponentHasGame');
         } else {
-            io.to(receiver.getId()).emit('newInvite', {from: data.from});
+            io.to(opponent.getId()).emit('inviteRequest', socket.nickname);
         }
     });
 
     //Odpowiedź na zaproszenie do gry
-    socket.on('inviteResponse', function (data) {
-        var opponent = usersCollection.getByNickname(data.to);
+    socket.on('inviteResponse', function (accept, nickname) {
+        var opponent = usersCollection.getByNickname(nickname);
         var user = usersCollection.getByNickname(socket.nickname);
-        if (data.accept) {
+        if (accept) {
             var roomId = generateRoomId();
             var game = new Game(socket.nickname, opponent.getNickname(), roomId);
 
@@ -167,10 +163,17 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('validateMove', function (data) {
+        console.log('ruch ' + socket.nickname);
         var gameRoomId = usersCollection.getByNickname(socket.nickname).getRoomId();
         var game = getGameByRoomId(gameRoomId);
 
         var validateResponse = game.validateMove(data.to.x, data.to.y);
+
+        if (validateResponse.status === 'goalMove') {
+            queryBuilder.updateScore(validateResponse.winner, validateResponse.loser);
+        }
+
+
         io.to(gameRoomId).emit('validateResponse', validateResponse);
 
     });
@@ -249,6 +252,16 @@ io.sockets.on('connection', function (socket) {
         game.changeNextMoveUser();
         io.to(gameRoomId).emit('changeNextMoveUser', {
             currentPlayer: game.getCurrentPlayer()
+        });
+    });
+
+    socket.on('getPlayersList', function (callback) {
+        callback(usersCollection.getList());
+    });
+
+    socket.on('getRanking', function (callback) {
+        queryBuilder.getScoreForAllUsers(function(result){
+            callback(result);
         });
     });
 

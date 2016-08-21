@@ -1,83 +1,96 @@
 #global-chat {
-    display: none;
-    width: 60%;
+    display: block;
+    width: 100%;
+    max-width: 1000px;
     height: 80%;
+    min-height: 600px;
     margin: auto;
     position: absolute;
     top: 0; left: 0; bottom: 0; right: 0;
-
-}
-
-.player-has-game {
-    background-image: url(../img/small_ball.png);
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-#chat-area {
-    background-color: #007F33;
+    text-align: center;
     border-radius: 10px;
-    width: 65%;
-    height: 100%;
-    float: right;
+    margin-top: 100px;
 }
 
 #players-list {
-    background-color: #007F33;
-    border-radius: 10px;
-    width: 25%;
+    width: 250px;
     height: 100%;
     float: left;
-    overflow-y: scroll;
+    display: block;
+    background-color: #009E32;
+}
+
+#players-title {
+    position: relative;
+    margin: 0 auto; 
+    display: block; 
+    text-align: center;
+    color: #ffffff; 
+    font-weight: bold; 
+    font-size: 24px;
+}
+
+.player {
+    background-color: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 20px;
+    width: 100%;
+}
+
+#chat-area {
+    width: 650px;
+    float: right;
+    height: 100%;
+    display: block;
+    background-color: #009E32;
 }
 
 #global-chat-area {
     width: 90%;
     height: 80%;
-    display: block;
-    resize: none;
-    margin: auto;
-    left: 0; right: 0; top: 0; bottom: 0;
-    margin-top: 4%;
-    font-size: 0.8vw;
+    margin-top: 5%;
 }
 
 #global-chat-message {
-    resize: none;
-    display: inline-block;
-    margin-left: 4.6%;
-    margin-top: 1%;
     width: 70%;
-    height: 7%;
-    font-size: 1.5vw;
+    height: 30px;
+    font-size: 24px;
 }
 
 #global-chat-send-message {
-    margin-right: 4.6%;
-    margin-top: 1%;
-    float: right;
-    height: 8%;
-    width: 19%;
-    font-size: 1.5vw;
+    width: 20%;
+    font-size: 24px;
 }
 
-#global-chat-input-box {
-    width: 90%;
-    height: 10%;
-    margin: auto;
-    padding-top: 1%;
-}
-
-#players-list::-webkit-scrollbar {
-    width: 12px;
-}
-
-#players-list::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
-    border-radius: 10px;
-}
-
-#players-list::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+@media screen and (max-width: 1000px) {
+    
+    #global-chat {
+        text-align: center;
+    }
+    
+    #players-list {
+        width: 100%;
+        height: 40%;
+    }
+    
+    #chat-area {
+        width: 100%;
+        height: 80%;
+        margin-top: 5%;
+        text-align: center;
+        float: left;
+    }
+    
+    #global-chat-message {
+        width: 90%;
+    }
+    
+    #global-chat-send-message {
+        width: 60%;
+        margin-top: 2px;
+    }
+    
+    
+    
 }

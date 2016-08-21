@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>paper soccer</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link rel="icon" href="img/football.png"/>
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <link rel="stylesheet" type="text/css" href="css/topMenu.css">
+        <link rel="stylesheet" type="text/css" href="css/form.css">
+        <link rel="stylesheet" type="text/css" href="css/globalChat.css">
+        <link rel="stylesheet" type="text/css" href="css/gameArea.css">
+        <link rel="stylesheet" type="text/css" href="css/dialog.css">
+
+        <script>
+            SOCKET = null;
+        </script>
+
+
+        <script type="text/javascript" src="jquery-1.11.3.js"></script>
+        <script type="text/javascript" src="jquery.cookie.js"></script>
+        <script type="text/javascript" src="socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="js/Socket.js"></script>
+        <script type="text/javascript" src="js/Dialog.js"></script>
+        <script type="text/javascript" src="js/Forms.js"></script>
+        <script type="text/javascript" src="js/GlobalChat.js"></script>
+        <script type="text/javascript" src="js/GameArea.js"></script>
+        <script type="text/javascript" src="js/TopMenu.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+    </head>
+    <body>
+        <div id="top-menu">
+            <button id="show-ranking" class="menu-button">Ranking</button>
+            <button class="menu-button">Moje konto</button>
+            <button class="menu-button">Wyloguj</button>
+        </div>
+
+        <div id="container">
+        </div>
+        
+        <div id="global-chat-container" style="display: none;">
+        </div>
+        
+        <div id="menu-items-container"></div>
+
+    </body>
+</html>

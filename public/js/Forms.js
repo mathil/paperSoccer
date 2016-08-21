@@ -1,36 +1,30 @@
 var that;
-
 var Forms = function () {
     that = this;
 };
 
 
 Forms.prototype.showLoginForm = function () {
-    $("#content").load("../views/login.ejs", function () {
+    $("#container").load("../views/login.html", function () {
         $('#login-form-form').submit(function (evt) {
             evt.preventDefault();
+            nickname = $("#login").val();
+            var password = $("#password").val();
             SOCKET = new Socket(nickname);
             SOCKET.connect();
-            var nickname = $("#login").val();
-            var password = $("#password").val();
             SOCKET.listen();
-            SOCKET.getSocket().emit('login', nickname, password, function (loginIsValid, loggedUsers) {
+            SOCKET.getSocket().emit('login', nickname, password, function (loginIsValid, userIsLogged) {
                 if (loginIsValid) {
-                    this.nickname = $("#login").val();
+                    if (userIsLogged) {
+                        $("#login-message").html("Użytkownik o takim loginie jest już zalogowany");
+                        return;
+                    }
+
+                    sessionStorage.setItem('nickname', nickname);
+
                     $("#login-form").remove();
-                    $("#global-chat").show();
-                    var content = "";
-                    (loggedUsers).forEach(function (player) {
-                        content += "<button class='player' id='" + player.nickname + "'>" + player.nickname;
-                        if (player.hasGame) {
-                            content += " <img id='" + player.nickname + "_hasGame' src='../img/small_ball.png'/>";
-                        } else {
-                            content += " <img id='" + player.nickname + "_hasGame' src='../img/small_ball.png' style='display: none;'/>";
-                        }
-                        content += "</button>";
-                    });
-                    $("#players").html(content);
-                    $("#" + nickname).css('font-weight', 'bold');
+                    TopMenu.init();
+                    (new GlobalChat()).load();
                 } else {
                     $("#login-message").html("Nieprawidłowy login lub hasło");
                 }
@@ -45,7 +39,7 @@ Forms.prototype.showLoginForm = function () {
 };
 
 Forms.prototype.showRegistrationForm = function () {
-    $("#content").load("../views/registration.ejs", function () {
+    $("#container").load("../views/registration.html", function () {
         $("#registration-form-form").on('submit', function (evt) {
             evt.preventDefault();
             var formData = {
