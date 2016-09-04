@@ -1,32 +1,21 @@
-var SOCKET;
 var nickname;
 
 var showGlobalChatAndRemoveGameArea = function () {
     $("#global-chat-container").css('display', 'block');
-    $("#container").css('display', 'none');
-    $("#game-area").remove();
+    $("#container").empty();
+    gameArea.stopTimer();
+    gameArea = null;
 };
 
-var hideGlobalChat = function() {
+var hideGlobalChat = function () {
     $("#global-chat-container").css('display', 'none');
 };
 
 $(document).ready(function () {
     (new Forms()).init();
-    
-//
-
-//        Dialog.createDialog({
-//            'message' : "test",
-//            buttons: [
-//                {
-//                    text: 'tak'
-//                },
-//                {
-//                    text: 'tak'
-//                }
-//            ]
-//        })
+//    TopMenu.init();
+//    $("#menu-items-container").load("../views/myAccount.html", function () {
+//    });
 
 
 

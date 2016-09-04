@@ -17,7 +17,7 @@
     height: 100%;
     float: left;
     display: block;
-    background-color: #009E32;
+    background-color: #007F33;
 }
 
 #players-title {
@@ -43,7 +43,7 @@
     float: right;
     height: 100%;
     display: block;
-    background-color: #009E32;
+    background-color: #007F33;
 }
 
 #global-chat-area {

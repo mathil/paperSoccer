@@ -3,6 +3,7 @@
     min-width: 300px;
     overflow: auto;
     text-align: right;
+    display: none;
 }
 
 .menu-button {
@@ -39,12 +40,14 @@
     width: 100%;
 }
 
-#ranking-table td {
+#my-account-container th {
     text-align: left;
+    width: 100px;
+
 }
 
 #ranking-table tr:nth-child(even){
-    background-color: gray;
+    background-color: #D1D1D1;
 }
 
 #close-ranking {
@@ -59,3 +62,95 @@
     position: relative;
     font-size: 24px;
 }
+
+#my-account-container {
+    position: absolute;
+    text-align: center;
+    width: 40%;
+    min-width: 600px;
+    height: 60%;
+    min-height: 800px;
+    margin: auto;
+    background-color: #ffffff;
+    top: 0; bottom: 0; left: 0; right: 0;
+    border: 1px solid #000;
+    border-radius: 10px;
+}
+
+#password-actions-container {
+    width: 90%;
+    height: 25%;
+    border-bottom: 1px solid black;
+    margin: auto;
+    margin-top: 20px;
+}
+
+#my-account-table-container {
+    width: 90%;
+    font-size: 18px;
+    border-bottom: 1px solid black;
+    margin: auto;
+    margin-top: 20px;
+    padding-bottom: 10px;
+    overflow: auto;
+}
+
+#my-account-table {
+    width: 100%;
+}
+
+#my-account-table td {
+    text-align: left;
+    /*border: 1px solid black;*/
+}
+
+#my-history-table-container {
+    width: 90%;
+    min-width: 400px;
+    height: 60%;
+    max-height: 300px;
+    margin: auto;
+    margin-top: 10px;
+    overflow: auto;
+}
+
+#my-history-table {
+    width: 100%;
+}
+
+#my-history-table tr:nth-child(even){
+    background-color: #D1D1D1;
+}
+
+#change-password-table {
+    margin-top: 20px;
+}
+
+
+.my-account-button {
+    color: #ffffff;
+    background-color: #007525;
+    border: none;
+    font-size: 18px;
+}
+
+#my-account-title {
+    font-size: 24px;
+}
+
+#close-my-account {
+    font-size: 24px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

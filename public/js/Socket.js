@@ -77,7 +77,7 @@ Socket.prototype.listen = function () {
 
     this.socket.on('startGame', function (data) {
         Dialog.removeExistsDialog();
-        $("#global-chat").hide();
+        hideGlobalChat();
         $("#container").load("../views/game.html", function () {
             gameArea = new GameArea();
             gameArea.init(data.gameParams);

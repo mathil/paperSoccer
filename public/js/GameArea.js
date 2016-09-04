@@ -237,6 +237,7 @@ GameArea.prototype.clearArea = function (params) {
 
 GameArea.prototype.initMoveTimer = function () {
     function updateTimer() {
+        console.log('updateTimer');
         if (that.timerHasStopped) {
             return;
         }
@@ -263,15 +264,22 @@ GameArea.prototype.resetTimeForMove = function () {
 };
 
 GameArea.prototype.addListeners = function () {
-    $(document).on('click', '#leave-game', function () {
+    $("#leave-game").on('click', function () {
+        console.log('leave game');
         Dialog.createDialog({
             message: "Czy na pewno chcesz opuścić grę?",
             buttons: [
                 {
                     text: "Opuść",
                     callback: function (dialogId) {
-                        SOCKET.getSocket().emit('leaveGame');
                         showGlobalChatAndRemoveGameArea();
+                        SOCKET.getSocket().emit('leaveGame');
+                        $("#" + dialogId).remove();
+                    }
+                },
+                {
+                    text: "Anuluj",
+                    callback: function(dialogId) {
                         $("#" + dialogId).remove();
                     }
                 }

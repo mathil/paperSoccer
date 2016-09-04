@@ -35,6 +35,21 @@ Dialog.createDialog = function (params) {
     return dialog;
 };
 
+Dialog.showInfoDialog = function (message) {
+    this.createDialog({
+        message: message,
+        buttons: [
+            {
+                text: "Zamknij",
+                callback: function (dialogId) {
+                    $("#" + dialogId).remove();
+                }
+            }
+        ]
+    });
+};
+
+
 Dialog.removeExistsDialog = function () {
     if (this.existsDialogId !== null) {
         $("#" + this.existsDialogId).remove();

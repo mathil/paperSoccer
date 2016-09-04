@@ -1,0 +1,116 @@
+<div id="my-account-container">
+    <span id="my-account-title">Moje konto</span>
+    <div id="my-account-table-container">
+        <table id="my-account-table">
+            <tr>
+                <th>
+                    Nick:
+                </th>
+                <td>
+                    <input id="my-nickname" readonly="readonly">
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    Email:
+                </th>
+                <td>
+                    <input id="my-email" readonly="readonly">
+                    <button id="change-email" class="my-account-button">zmień</button>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    Wygrane:
+                </th>
+                <td>
+                    <input id="my-won-matches" readonly="readonly">
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    Wygrane:
+                </th>
+                <td>
+                    <input id="my-lost-matches" readonly="readonly">
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    Passa:
+                </th>
+                <td>
+                    <input id="my-luck">
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    Passa:
+                </th>
+                <td>
+                    <input id="my-luck">
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="password-actions-container">
+        <button type="button" id="show-change-password-form" class="my-account-button">Zmień hasło</button>
+        
+        <form id="change-password-form">
+        <table id="change-password-table" style="display: none">
+            <tr>
+                <th>Obecne hasło:</th>
+                <td><input id="current-password" type="password" required="required"></td>
+            </tr>
+            <tr>
+                <th>Nowe hasło:</th>
+                <td><input id="new-password" type="password" required="required"></td>
+            </tr>
+            <tr>
+                <th>Powtórz hasło:</th>
+                <td><input id="new-password-confirmed" type="password" required="required"></td>
+            </tr>
+            <tr>
+                <th></th>
+                <td><button type="submit" id="change-password" style="float: right;" class="my-account-button">Zapisz</button></td>
+            </tr>
+        </table>
+        </form>
+        
+    </div>
+
+    <div id="my-history-table-container">
+        Historia:
+        <table id="my-history-table">
+            <thead>
+                <tr>
+                    <th>Przeciwnik</th>
+                    <th>Rezultat</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <button id="close-my-account" class="my-account-button">Zamknij</button>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

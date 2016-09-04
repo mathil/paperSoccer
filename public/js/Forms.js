@@ -33,8 +33,14 @@ Forms.prototype.showLoginForm = function () {
 
         $("#show-registration-form").click(function () {
             that.showRegistrationForm();
-            $("#login-form").remove();
+//            $("#login-form").remove();
         });
+
+        $("#reset-password-button").on('click', function () {
+            that.showResetPasswordForm();
+        });
+
+
     });
 };
 
@@ -49,9 +55,9 @@ Forms.prototype.showRegistrationForm = function () {
                 passwordConfirm: $("#registration-password-confirm").val()
             };
 
-            SOCKET = new Socket('asd');
-            SOCKET.connect();
-            SOCKET.getSocket().emit('registration', formData, function (response, invalidMessage) {
+            var tempSocket = new Socket();
+            tempSocket.connect();
+            tempSocket.getSocket().emit('registration', formData, function (response, invalidMessage) {
                 if (response) {
                     Dialog.createDialog({
                         message: "Konto zostało założone. Możesz się zalogować",
@@ -73,10 +79,41 @@ Forms.prototype.showRegistrationForm = function () {
         });
         $("#show-login-form").click(function () {
             that.showLoginForm();
-            $("#registration-form").remove();
         });
     });
 };
+
+Forms.prototype.showResetPasswordForm = function () {
+    console.log('siema');
+    $("#container").load("../views/resetPassword.html", function () {
+        $("#reset-password-form").on('submit', function(evt){
+           evt.preventDefault();
+           
+           var email = $("#reset-password-email").val();
+           
+           var tempSocket = new Socket();
+           tempSocket.connect();
+           tempSocket.getSocket().emit('resetPassword', email, function(status){
+               tempSocket = null;
+               if(status === 'success') {
+                   Dialog.showInfoDialog("Nowe hasło zostało wysłane na podany adres")
+               } else if(status === 'error') {
+                   Dialog.showInfoDialog("Wystąpił błąd podczas generowania nowego hasła.");
+               } else if(status === 'emailNotExists') {
+                   Dialog.showInfoDialog("W systemie nie istnieje użytkownik z takim adresem");
+               }
+           });
+           
+        });
+        
+        
+
+        $("#show-login-form").click(function () {
+            that.showLoginForm();
+        });
+    });
+};
+
 
 Forms.prototype.init = function () {
     this.showLoginForm();

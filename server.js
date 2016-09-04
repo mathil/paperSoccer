@@ -3,21 +3,25 @@ var express = require('express');
 var app = express();
 var port = 8080;
 
-var rooms = [];
-var games = [];
+var gameContainer = [];
 
 app.set('view engine', 'html');
 
+var mailer = require('./serverScripts/Mailer.js');
 var Game = require('./serverScripts/Game.js');
 var User = require('./serverScripts/User.js');
 var UsersCollection = require('./serverScripts/UsersCollection.js');
-var QueryBuilder = require('./serverScripts/QueryBuilder.js');
+var QueryManager = require('./serverScripts/QueryManager.js');
 
 var usersCollection = new UsersCollection();
-var queryBuilder = new QueryBuilder();
+var queryManager = new QueryManager();
 
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/lib'));
+
+
+//queryManager.updateScore("asd", "qwe");
+
 
 // index    
 app.get('/', function (req, res) {
@@ -30,7 +34,7 @@ console.log('Serwer nasłuchuje na porcie ' + port);
 io.sockets.on('connection', function (socket) {
     //Mechanizm logowania do gry
     socket.on('login', function (nickname, password, loginResponse) {
-        queryBuilder.checkLogin(nickname, password, function (result) {
+        queryManager.checkLogin(nickname, password, function (result) {
             if (result) {
                 if (usersCollection.isExists(nickname)) {
                     loginResponse(result, true);
@@ -51,12 +55,12 @@ io.sockets.on('connection', function (socket) {
 
     //Rejestracja nowego użytkownika
     socket.on('registration', function (formData, registrationResponse) {
-        queryBuilder.checkIfUserExists(formData.nick, formData.email, function (isExists) {
+        queryManager.checkIfUserExists(formData.nick, formData.email, function (isExists) {
             if (!isExists) {
                 if (formData.password !== formData.passwordConfirm) {
                     registrationResponse(false, "Podane hasła nie są takie same");
                 } else {
-                    queryBuilder.insertUser(formData.nick, formData.email, formData.password, function (success) {
+                    queryManager.insertUser(formData.nick, formData.email, formData.password, function (success) {
                         if (success) {
                             registrationResponse(true, null);
                         } else {
@@ -130,10 +134,10 @@ io.sockets.on('connection', function (socket) {
         var opponent = usersCollection.getByNickname(nickname);
         var user = usersCollection.getByNickname(socket.nickname);
         if (accept) {
-            var roomId = generateRoomId();
+            var roomId = generateRandomString(10);
             var game = new Game(socket.nickname, opponent.getNickname(), roomId);
 
-            games.push({roomId: roomId, game: game});
+            gameContainer.push({roomId: roomId, game: game});
 
             io.sockets.connected[opponent.getId()].join(roomId);
             socket.join(roomId);
@@ -170,7 +174,7 @@ io.sockets.on('connection', function (socket) {
         var validateResponse = game.validateMove(data.to.x, data.to.y);
 
         if (validateResponse.status === 'goalMove') {
-            queryBuilder.updateScore(validateResponse.winner, validateResponse.loser);
+            queryManager.updateScore(validateResponse.winner, validateResponse.loser);
         }
 
 
@@ -260,8 +264,43 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('getRanking', function (callback) {
-        queryBuilder.getScoreForAllUsers(function(result){
+        queryManager.getScoreForAllUsers(function (result) {
             callback(result);
+        });
+    });
+
+    socket.on('getUserProperties', function (callback) {
+        queryManager.getUserProperties(socket.nickname, function (result) {
+            callback(result);
+        });
+    });
+
+    socket.on('changePassword', function (currentPassword, newPassword, callback) {
+        queryManager.changePassword(socket.nickname, currentPassword, newPassword, function (result) {
+            callback(result);
+        });
+    });
+
+    socket.on('changeEmail', function (email, callback) {
+        queryManager.changeEmail(socket.nickname, email, function (result) {
+            callback(result);
+        });
+    });
+
+    socket.on('resetPassword', function (email, callback) {
+        var newPassword = generateRandomString(7);
+        queryManager.resetPassword(email, newPassword, function (nickname) {
+            if (nickname !== null) {
+                mailer.sendNewPassword(nickname, newPassword, email, function (success) {
+                    if (success) {
+                        callback("success");
+                    } else {
+                        callback("error");
+                    }
+                });
+            } else {
+                callback("emailNotExists");
+            }
         });
     });
 
@@ -269,16 +308,12 @@ io.sockets.on('connection', function (socket) {
 
 var getCurrentTimeAsString = function () {
     var date = new Date();
-    var hour = date.getHours();
-    var minutes = date.getMinutes();
-    var seconds = date.getSeconds();
-    hour = hour < 10 ? '0' + hour : hour;
-    return hour + ":" + minutes + ":" + seconds;
+    return (date.getHours()).slice(-2) + ":" + (date.getMinutes()).slice(-2) + ":" + (date.getSeconds()).slice(-2);
 };
 
 var getGameByRoomId = function (roomId) {
     var result = null;
-    games.forEach(function (game) {
+    gameContainer.forEach(function (game) {
         if (game.roomId === roomId) {
             result = game.game;
             return;
@@ -289,12 +324,11 @@ var getGameByRoomId = function (roomId) {
 
 
 
-var generateRoomId = function () {
+var generateRandomString = function (length) {
     var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     var id = "";
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < length; i++) {
         id += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    rooms.push(id);
     return id;
 };

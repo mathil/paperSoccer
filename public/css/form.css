@@ -2,17 +2,21 @@
     display: block;
     width: 100%;
     max-width: 420px;
-    height: 200px;
+    height: 240px;
     margin: auto;
     position: absolute;
     top: 0; left: 0; bottom: 0; right: 0;
     text-align: center;
-    background-color: #009E32;
+    background-color: #007F33;
     border-radius: 10px;
 }
 
 #registration-form {
     height: 320px;
+}
+
+#reset-password-form {
+    height: 130px;
 }
 
 .invalid-message {
@@ -30,7 +34,7 @@
 .login-register-switcher {
     color: #ffffff;
     display: block;
-    margin-top: 5%;
+    margin-top: 2%;
 }
 
 .submit-button {
@@ -40,7 +44,18 @@
     color: #ffffff;
     background-color: #007525;
     border: none;
+    border-radius: 5px;
 }
+
+#reset-password-button {
+    color: #ffffff;
+    background-color: #007525;
+    font-size: 20px;
+    border: none;
+    margin-top: 5%;
+    border-radius: 5px;
+}
+
 
 @media screen and (max-width: 320px) {
     .form {
