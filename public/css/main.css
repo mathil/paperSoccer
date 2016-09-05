@@ -17,6 +17,12 @@ div {
     /*border: 1px solid black;*/
 }
 
+button {
+    color: #ffffff;
+    background-color: #12991E;
+    border: none;
+}
+
 
 @media screen and (max-width: 1000px) {
 

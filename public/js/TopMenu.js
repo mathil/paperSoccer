@@ -87,7 +87,6 @@ TopMenu.addMyAccountListeners = function () {
 
     $("#change-password-form").on('submit', function (evt) {
         evt.preventDefault();
-        console.log('form submit');
         var currentPassword = $("#current-password").val();
         var newPassword = $("#new-password").val();
         var newPasswordRepeated = $("#new-password-confirmed").val();
@@ -184,6 +183,7 @@ TopMenu.init = function () {
     });
 
     $("#logout").on('click', function () {
+        sessionStorage.setItem('logged', 'false');
         $("#top-menu").hide();
         if (gameArea !== null) {
             gameArea.stopTimer();

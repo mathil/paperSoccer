@@ -32,9 +32,7 @@ Mailer.prototype.sendNewPassword = function(nickname, password, email, callback)
         subject: "paperSoccer - nowe hasło",
         text: "Witaj " + nickname + "! Twoje nowe hasło to " + password + ". W każdej chwili możesz je zmienić wchodząc w ustawienia konta."
     };
-    console.log(mailOptions);
     this.transporter.sendMail(mailOptions, function(error, info) {
-        console.log(error);
         if(!error) {
             callback(true);
         } else {
@@ -42,17 +40,6 @@ Mailer.prototype.sendNewPassword = function(nickname, password, email, callback)
         }
     });
 };
-
-Mailer.prototype.send = function() {
-    this.transporter.sendMail(this.mailOptions, function(error, info) {
-       if(error) {
-           console.log(error);
-       }
-       console.log(info);
-    });
-};
-
-
 
 
 

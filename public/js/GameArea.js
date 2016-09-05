@@ -47,7 +47,6 @@ GameArea.prototype.initGameAreaListeners = function () {
     this.drawArea();
 
     this.ballImage.onload = function () {
-        console.log('onload');
         that.ballContext.drawImage(this, that.lastPoint.x - 5, that.lastPoint.y - 5);
     };
 
@@ -237,7 +236,6 @@ GameArea.prototype.clearArea = function (params) {
 
 GameArea.prototype.initMoveTimer = function () {
     function updateTimer() {
-        console.log('updateTimer');
         if (that.timerHasStopped) {
             return;
         }
@@ -265,7 +263,6 @@ GameArea.prototype.resetTimeForMove = function () {
 
 GameArea.prototype.addListeners = function () {
     $("#leave-game").on('click', function () {
-        console.log('leave game');
         Dialog.createDialog({
             message: "Czy na pewno chcesz opuścić grę?",
             buttons: [

@@ -41,6 +41,7 @@ io.sockets.on('connection', function (socket) {
                 } else {
                     socket.nickname = nickname;
                     usersCollection.add(new User(nickname, socket.id));
+                    console.log(nickname + " zalogował się. Liczba użytkowników - " + usersCollection.getSize());
                     io.sockets.emit('addToPlayersList', {
                         nickname: socket.nickname
                     });
@@ -121,7 +122,6 @@ io.sockets.on('connection', function (socket) {
         console.log("Zaproszenie do gry od " + socket.nickname + " dla " + opponentNickname);
 
         var opponent = usersCollection.getByNickname(opponentNickname);
-        console.log(opponent);
         if (opponent.getHasGame()) {
             callback('opponentHasGame');
         } else {
@@ -167,7 +167,6 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('validateMove', function (data) {
-        console.log('ruch ' + socket.nickname);
         var gameRoomId = usersCollection.getByNickname(socket.nickname).getRoomId();
         var game = getGameByRoomId(gameRoomId);
 
@@ -183,7 +182,6 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('leaveGame', function () {
-        console.log('leaveGame');
         var user = usersCollection.getByNickname(socket.nickname);
         user.setHasGame(false);
         var gameRoomId = user.getRoomId();
@@ -290,7 +288,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('resetPassword', function (email, callback) {
         var newPassword = generateRandomString(7);
         queryManager.resetPassword(email, newPassword, function (nickname) {
-            if (nickname !== null) {
+            if (nickname && nickname !== null) {
                 mailer.sendNewPassword(nickname, newPassword, email, function (success) {
                     if (success) {
                         callback("success");

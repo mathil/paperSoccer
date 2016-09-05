@@ -1,6 +1,5 @@
 
 var Socket = function (nickname) {
-    console.log('socket.nickname=' + nickname);
     this.socket = null;
     this.nickname = nickname;
 };
@@ -81,8 +80,6 @@ Socket.prototype.listen = function () {
         $("#container").load("../views/game.html", function () {
             gameArea = new GameArea();
             gameArea.init(data.gameParams);
-            console.log(that.nickname);
-            console.log(data.gameParams.currentPlayer);
             if (that.nickname === data.gameParams.currentPlayer) {
                 gameArea.unlockArea();
             } else {
@@ -110,8 +107,6 @@ Socket.prototype.listen = function () {
     });
 
     this.socket.on('validateResponse', function (data) {
-        console.log(data);
-
         if (data.status !== 'invalidMove') {
             gameArea.drawMove(data.x, data.y, data.lineColor);
             if (data.status === 'goalMove') {

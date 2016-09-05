@@ -60,31 +60,31 @@ QueryManager.prototype.updateScore = function (winner, loser) {
             "'" + this.convertDate(new Date()) +"')";
 
     this.dbConn.query(gameHistoryQuery, function (err, rows, field) {
-        console.log('gameHistoryQuery');
-        console.log(err);
     });
 
     var updateWinnerQuery = "UPDATE user SET won_matches=won_matches+1, " +
-            "luck=IF(luck > 0, luck+1, 1) " +
+            "luck=IF(luck > 0, luck+1, 1), " +
+            "score=IF(luck > 0, score+luck*10, score+10) " +
             "WHERE nickname='" + winner + "'";
 
     this.dbConn.query(updateWinnerQuery, function (err, rows, field) {
-        console.log('updateWinnerQuery');
+        console.log('winnerq');
         console.log(err);
     });
 
-    var updateLoserQuery = "UPDATE user SET lost_matches=won_matches+1, " +
-            "luck=IF(luck < 0, luck-1, -1) " +
+    var updateLoserQuery = "UPDATE user SET lost_matches=lost_matches+1, " +
+            "luck=IF(luck < 0, luck-1, -1), " +
+            "score=IF(luck < 0, score-ABS(luck)*10, score-10) "+
             "WHERE nickname='" + loser + "'";
 
     this.dbConn.query(updateLoserQuery, function (err, rows, field) {
-        console.log('updateLoserQuery');
+        console.log('loserq ' + loser);
         console.log(err);
     });
 };
 
 QueryManager.prototype.getScoreForAllUsers = function (callback) {
-    this.dbConn.query("SELECT nickname, won_matches, lost_matches, luck, score FROM user ORDER BY score", function (err, rows, field) {
+    this.dbConn.query("SELECT nickname, won_matches, lost_matches, luck, score FROM user ORDER BY score DESC", function (err, rows, field) {
         callback(rows);
     });
 };
@@ -102,7 +102,6 @@ QueryManager.prototype.getUserProperties = function (nickname, callback) {
                 "ORDER BY datetime DESC";
 
         that.dbConn.query(gameHistoryQuery, function (err, rows, field) {
-            console.log(err);
             callback({
                 properties: properties,
                 gameHistory: rows
@@ -114,10 +113,8 @@ QueryManager.prototype.getUserProperties = function (nickname, callback) {
 QueryManager.prototype.changePassword = function (nickname, currentPassword, newPassword, callback) {
     var that = this;
     this.dbConn.query("SELECT id FROM user WHERE nickname='" + nickname + "' AND password=md5('" + currentPassword + "')", function (err, rows, field) {
-        console.log(err);
         if (rows.length > 0) {
             that.dbConn.query("UPDATE user SET password=md5('" + newPassword + "') WHERE nickname='" + nickname + "'", function (err, rows, field) {
-                console.log(err);
                 if (!err) {
                     callback('success');
                 } else {
@@ -143,11 +140,9 @@ QueryManager.prototype.changeEmail = function (nickname, email, callback) {
 QueryManager.prototype.resetPassword = function (email, newPassword, callback) {
     var that = this;
     this.dbConn.query("SELECT nickname FROM user WHERE email='" + email + "'", function (err, rows, field) {
-        console.log(err);
         if (!err && rows.length > 0) {
             var nickname = rows[0].nickname;
             that.dbConn.query("UPDATE user SET password=md5('" + newPassword + "') WHERE email='" + email + "'", function (err, rows, field) {
-                console.log(err);
                 if (!err) {
                     callback(nickname);
                 } else {
