@@ -63,6 +63,7 @@ io.sockets.on('connection', function (socket) {
                 } else {
                     queryManager.insertUser(formData.nick, formData.email, formData.password, function (success) {
                         if (success) {
+                            mailer.sendRegistrationMail(formData.nick, formData.email)
                             registrationResponse(true, null);
                         } else {
                             registrationResponse(false, "Wystąpił błąd podczas tworzenia konta.");
