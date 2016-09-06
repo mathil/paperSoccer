@@ -5,6 +5,7 @@ var Dialog = {
 };
 
 Dialog.createDialog = function (params) {
+    this.removeExistsDialog();
     var id = "";
     for (var i = 0; i < 10; i++) {
         id += Math.floor(Math.random(0) * 9);
@@ -36,6 +37,7 @@ Dialog.createDialog = function (params) {
 };
 
 Dialog.showInfoDialog = function (message) {
+    this.removeExistsDialog();
     this.createDialog({
         message: message,
         buttons: [
@@ -53,5 +55,6 @@ Dialog.showInfoDialog = function (message) {
 Dialog.removeExistsDialog = function () {
     if (this.existsDialogId !== null) {
         $("#" + this.existsDialogId).remove();
+        this.existsDialogId = null;
     }
 };

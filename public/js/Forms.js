@@ -17,7 +17,7 @@ Forms.prototype.showLoginForm = function () {
             SOCKET.getSocket().emit('login', nickname, password, function (loginIsValid, userIsLogged) {
                 if (loginIsValid) {
                     if (userIsLogged) {
-                        $("#login-message").html("Użytkownik o takim loginie jest już zalogowany");
+                        Dialog.showInfoDialog("Użytkownik o takim loginie jest już zalogowany");
                         return;
                     }
 
@@ -27,7 +27,7 @@ Forms.prototype.showLoginForm = function () {
                     TopMenu.init();
                     (new GlobalChat()).load();
                 } else {
-                    $("#login-message").html("Nieprawidłowy login lub hasło");
+                    Dialog.showInfoDialog("Nieprawidłowy login lub hasło");
                 }
             });
         });
@@ -74,7 +74,7 @@ Forms.prototype.showRegistrationForm = function () {
                         ]
                     });
                 } else {
-                    $("#registration-invalid-message").html(invalidMessage);
+                   Dialog.showInfoDialog(invalidMessage);
                 }
             });
         });
