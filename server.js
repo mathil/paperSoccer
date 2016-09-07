@@ -307,7 +307,9 @@ io.sockets.on('connection', function (socket) {
 
 var getCurrentTimeAsString = function () {
     var date = new Date();
-    return (date.getHours()).slice(-2) + ":" + (date.getMinutes()).slice(-2) + ":" + (date.getSeconds()).slice(-2);
+    return ('00' + date.getHours()).slice(-2) + 
+            ":" + ('00' + date.getMinutes()).slice(-2) + 
+            ":" + ('00' + date.getSeconds()).slice(-2);
 };
 
 var getGameByRoomId = function (roomId) {

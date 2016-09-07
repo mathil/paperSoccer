@@ -18,6 +18,7 @@ Forms.prototype.showLoginForm = function () {
                 if (loginIsValid) {
                     if (userIsLogged) {
                         Dialog.showInfoDialog("Użytkownik o takim loginie jest już zalogowany");
+                        SOCKET.getSocket().disconnect();
                         return;
                     }
 
@@ -28,6 +29,7 @@ Forms.prototype.showLoginForm = function () {
                     (new GlobalChat()).load();
                 } else {
                     Dialog.showInfoDialog("Nieprawidłowy login lub hasło");
+                    SOCKET.getSocket().disconnect();
                 }
             });
         });
@@ -75,6 +77,7 @@ Forms.prototype.showRegistrationForm = function () {
                     });
                 } else {
                    Dialog.showInfoDialog(invalidMessage);
+                   SOCKET.getSocket().disconnect();
                 }
             });
         });

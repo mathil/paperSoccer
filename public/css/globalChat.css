@@ -52,6 +52,7 @@
     width: 90%;
     height: 80%;
     margin-top: 5%;
+    resize: none;
 }
 
 #global-chat-message {
@@ -78,7 +79,7 @@
     
     #chat-area {
         width: 100%;
-        height: 80%;
+        height: 650px;
         margin-top: 5%;
         text-align: center;
         float: left;

@@ -16,13 +16,7 @@
 }
 
 #reset-password-form {
-    height: 130px;
-}
-
-.invalid-message {
-    display: block;
-    height: 5%;
-    color: #ffffff;
+    height: 140px;
 }
 
 .form-field {
