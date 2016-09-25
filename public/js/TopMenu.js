@@ -5,18 +5,18 @@ var TopMenu = {
 };
 
 
-TopMenu.showRanking = function () {
+TopMenu.showRanking = function() {
     this.isMyAccountActive = false;
     var that = this;
-    $("#menu-items-container").load("../views/ranking.html", function () {
-        $("#close-ranking").on('click', function () {
+    $("#menu-items-container").load("../views/ranking.html", function() {
+        $("#close-ranking").on('click', function() {
             that.isRankingActive = false;
             TopMenu.hideRanking();
         });
-        SOCKET.getSocket().emit('getRanking', function (data) {
+        SOCKET.getSocket().emit('getRanking', function(data) {
             var index = 0;
 //            for (var i = 0; i < 100; i++) {
-            data.forEach(function (item) {
+            data.forEach(function(item) {
                 $("#ranking-table tr:last").after(
                         "<tr>" +
                         "<td>" + (++index) + "</td>" +
@@ -33,19 +33,19 @@ TopMenu.showRanking = function () {
     });
 };
 
-TopMenu.hideRanking = function () {
+TopMenu.hideRanking = function() {
     $("#ranking").remove();
 };
 
-TopMenu.showMyAccount = function () {
+TopMenu.showMyAccount = function() {
     this.isRankingActive = false;
     var that = this;
-    $("#menu-items-container").load("../views/myAccount.html", function () {
-        $("#close-ranking").on('click', function () {
+    $("#menu-items-container").load("../views/myAccount.html", function() {
+        $("#close-ranking").on('click', function() {
             that.isMyAccountActive = false;
             TopMenu.hideMyAccount();
         });
-        SOCKET.getSocket().emit('getUserProperties', function (data) {
+        SOCKET.getSocket().emit('getUserProperties', function(data) {
             $("#my-nickname").val(data.properties.nickname);
             $("#my-email").val(data.properties.email);
             $("#my-won-matches").val(data.properties.won_matches);
@@ -53,24 +53,34 @@ TopMenu.showMyAccount = function () {
             $("#my-luck").val(data.properties.luck);
             var opponent = "";
             var result = "";
-            data.gameHistory.forEach(function (item) {
 
-                if (item.loser === nickname) {
-                    opponent = item.winner;
-                    result = "Przegrana";
-                } else {
-                    opponent = item.loser;
-                    result = "Wygrana";
-                }
-
+            if (data.gameHistory.length === 0) {
                 $("#my-history-table tr:last").after(
                         "<tr>" +
-                        "<td>" + opponent + "</td>" +
-                        "<td>" + result + "</td>" +
-                        "<td>" + item.datetime + "</td>" +
+                        "<td colspan='3'>Brak rozegranych meczy</td>" +
                         "</tr>"
                         );
-            });
+            } else {
+                data.gameHistory.forEach(function(item) {
+
+                    if (item.loser === nickname) {
+                        opponent = item.winner;
+                        result = "Przegrana";
+                    } else {
+                        opponent = item.loser;
+                        result = "Wygrana";
+                    }
+
+                    $("#my-history-table tr:last").after(
+                            "<tr>" +
+                            "<td>" + opponent + "</td>" +
+                            "<td>" + result + "</td>" +
+                            "<td>" + item.datetime + "</td>" +
+                            "</tr>"
+                            );
+                });
+            }
+
 
 
         });
@@ -78,14 +88,14 @@ TopMenu.showMyAccount = function () {
     });
 };
 
-TopMenu.addMyAccountListeners = function () {
+TopMenu.addMyAccountListeners = function() {
     var isEmailBlock = true;
     var that = this;
-    $("#show-change-password-form").on('click', function () {
+    $("#show-change-password-form").on('click', function() {
         $("#change-password-table").toggle();
     });
 
-    $("#change-password-form").on('submit', function (evt) {
+    $("#change-password-form").on('submit', function(evt) {
         evt.preventDefault();
         var currentPassword = $("#current-password").val();
         var newPassword = $("#new-password").val();
@@ -95,7 +105,7 @@ TopMenu.addMyAccountListeners = function () {
             return;
         }
 
-        SOCKET.getSocket().emit('changePassword', currentPassword, newPassword, function (success) {
+        SOCKET.getSocket().emit('changePassword', currentPassword, newPassword, function(success) {
             if (success === 'success') {
                 Dialog.showInfoDialog("Hasło zostało zmienione");
                 $("#change-password-table").toggle();
@@ -107,7 +117,7 @@ TopMenu.addMyAccountListeners = function () {
         });
     });
 
-    $("#change-email").on('click', function () {
+    $("#change-email").on('click', function() {
         if (isEmailBlock) {
             $(this).text("zapisz");
             $("#my-email").attr('readonly', false);
@@ -121,7 +131,7 @@ TopMenu.addMyAccountListeners = function () {
                 return;
             }
 
-            SOCKET.getSocket().emit('changeEmail', email, function (success) {
+            SOCKET.getSocket().emit('changeEmail', email, function(success) {
                 if (success) {
                     Dialog.showInfoDialog("Email został zmieniony");
                 } else {
@@ -137,7 +147,7 @@ TopMenu.addMyAccountListeners = function () {
 
 
 
-    $("#close-my-account").on('click', function () {
+    $("#close-my-account").on('click', function() {
         that.isMyAccountActive = false;
         $("#my-account-container").remove();
     });
@@ -156,17 +166,17 @@ TopMenu.addMyAccountListeners = function () {
 
 };
 
-TopMenu.hideMyAccount = function () {
+TopMenu.hideMyAccount = function() {
     $("#myAccount").remove();
 };
 
 
 
 
-TopMenu.init = function () {
+TopMenu.init = function() {
     $("#top-menu").show();
     var that = this;
-    $("#show-ranking").on('click', function () {
+    $("#show-ranking").on('click', function() {
         if (that.isRankingActive) {
             return;
         }
@@ -174,7 +184,7 @@ TopMenu.init = function () {
         TopMenu.showRanking();
     });
 
-    $("#my-account").on('click', function () {
+    $("#my-account").on('click', function() {
         if (that.isMyAccountActive) {
             return;
         }
@@ -182,7 +192,7 @@ TopMenu.init = function () {
         TopMenu.showMyAccount();
     });
 
-    $("#logout").on('click', function () {
+    $("#logout").on('click', function() {
         sessionStorage.setItem('logged', 'false');
         $("#top-menu").hide();
         if (gameArea !== null) {

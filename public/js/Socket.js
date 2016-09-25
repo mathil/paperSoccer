@@ -5,7 +5,7 @@ var Socket = function (nickname) {
 };
 
 Socket.prototype.connect = function () {
-    this.socket = io.connect('http://192.168.1.16:8080');
+    this.socket = io.connect('http://localhost:8080');
 };
 
 Socket.prototype.getSocket = function () {

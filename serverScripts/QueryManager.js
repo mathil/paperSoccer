@@ -4,7 +4,7 @@ var QueryManager = function () {
     this.dbConn = mysql.createConnection({
         host: 'localhost',
         user: 'root',
-        password: 'localhost',
+        password: '12mateusz3',
         database: 'papersoccer'
     });
     this.dbConn.connect();
