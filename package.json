@@ -7,5 +7,28 @@
     "socket.io": "^1.0.6",
     "mysql": "^2.5.4",
     "nodemailer": "~2.6.4"
-  }
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "description": "Online paper soccer game",
+  "version": "1.0.0",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mathil/paperSoccer.git"
+  },
+  "keywords": [
+    "html5",
+    "javascript",
+    "node.js",
+    "paper",
+    "soccer"
+  ],
+  "author": "Mateusz Hildebrandt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mathil/paperSoccer/issues"
+  },
+  "homepage": "https://github.com/mathil/paperSoccer#readme"
 }

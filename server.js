@@ -66,6 +66,7 @@ io.sockets.on('connection', function (socket) {
                             mailer.sendRegistrationMail(formData.nick, formData.email)
                             registrationResponse(true, null);
                         } else {
+                            console.log('tutaj');
                             registrationResponse(false, "Wystąpił błąd podczas tworzenia konta.");
                         }
                     });

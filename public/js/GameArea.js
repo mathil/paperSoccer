@@ -163,12 +163,6 @@ GameArea.prototype.isGoalMove = function (player, score, resetGameParams) {
 };
 
 GameArea.prototype.drawArea = function () {
-//    this.canvas = document.getElementById('game-canvas');
-//    this.context = this.canvas.getContext('2d');
-//
-//    this.ballCanvas = document.getElementById('ball-canvas');
-//    this.ballContext = this.ballCanvas.getContext('2d');
-
     this.canvas.width = 630;
     this.canvas.height = 450;
 
@@ -227,6 +221,20 @@ GameArea.prototype.drawArea = function () {
     this.context.fillRect(540, 225, 2, 2);
     this.context.stroke();
 
+    this.context.strokeStyle = this.playerAColorLine;
+    this.context.fillStyle = this.playerAColorLine;
+    this.context.beginPath();
+    this.context.moveTo(45, 180);
+    this.context.lineTo(45, 270);
+    this.context.stroke();
+    
+    this.context.strokeStyle = this.playerBColorLine;
+    this.context.fillStyle = this.playerBColorLine;
+    this.context.beginPath();
+    this.context.moveTo(585, 180);
+    this.context.lineTo(585, 270);
+    this.context.stroke();
+
 };
 
 GameArea.prototype.clearArea = function (params) {
@@ -276,7 +284,7 @@ GameArea.prototype.addListeners = function () {
                 },
                 {
                     text: "Anuluj",
-                    callback: function(dialogId) {
+                    callback: function (dialogId) {
                         $("#" + dialogId).remove();
                     }
                 }

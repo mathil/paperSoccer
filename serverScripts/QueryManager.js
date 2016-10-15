@@ -4,11 +4,10 @@ var QueryManager = function () {
     this.dbConn = mysql.createConnection({
         host: 'localhost',
         user: 'root',
-        password: '12mateusz3',
+        password: 'localhost',
         database: 'papersoccer'
     });
     this.dbConn.connect();
-
 };
 
 QueryManager.prototype.convertDate = function convertDate(date) {
@@ -44,10 +43,11 @@ QueryManager.prototype.checkIfUserExists = function (nickname, email, callback) 
 };
 
 QueryManager.prototype.insertUser = function (nickname, email, password, callback) {
-    this.dbConn.query("INSERT INTO user (nickname, email, password) VALUES ('" + nickname + "', '" + email + "', md5('" + password + "'))", function (err, rows, field) {
+    this.dbConn.query("INSERT INTO user (nickname, email, password, won_matches, lost_matches, luck, score) VALUES ('" + nickname + "', '" + email + "', md5('" + password + "'), 0, 0, 0, 0)", function (err, rows, field) {
         if (!err) {
             callback(true);
         } else {
+            console.log(err);
             callback(false);
         }
     });
