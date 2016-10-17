@@ -303,12 +303,17 @@ io.sockets.on('connection', function (socket) {
         });
     });
 
+    socket.on('cancelInvite', function (nickname) {
+        var user = usersCollection.getByNickname(nickname);
+        io.to(user.getId()).emit('inviteHasCancelled', socket.nickname);
+    });
+
 });
 
 var getCurrentTimeAsString = function () {
     var date = new Date();
-    return ('00' + date.getHours()).slice(-2) + 
-            ":" + ('00' + date.getMinutes()).slice(-2) + 
+    return ('00' + date.getHours()).slice(-2) +
+            ":" + ('00' + date.getMinutes()).slice(-2) +
             ":" + ('00' + date.getSeconds()).slice(-2);
 };
 

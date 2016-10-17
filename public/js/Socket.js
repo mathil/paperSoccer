@@ -257,6 +257,10 @@ Socket.prototype.listen = function () {
             });
         }
     });
+    
+    this.socket.on('inviteHasCancelled', function(opponent){
+        Dialog.showInfoDialog(opponent + " anulował zaproszenie");
+    });
 
 };
 

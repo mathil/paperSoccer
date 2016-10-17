@@ -31,7 +31,7 @@ GlobalChat.prototype.initGameInviteListener = function () {
         var id = $(this).attr('id');
         if (id !== nickname) {
             Dialog.createDialog({
-                message: "Oczeniwanie na akceptacje przeciwnika...",
+                message: "Oczekiwanie na akceptacje przeciwnika...",
                 buttons: [
                     {
                         text: "Anuluj",
