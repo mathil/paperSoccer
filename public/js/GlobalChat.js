@@ -30,8 +30,17 @@ GlobalChat.prototype.initGameInviteListener = function () {
     $("#players-list").on('click', '.player', function () {
         var id = $(this).attr('id');
         if (id !== nickname) {
-            var waitingDialog = Dialog.createDialog({
+            Dialog.createDialog({
                 message: "Oczeniwanie na akceptacje przeciwnika...",
+                buttons: [
+                    {
+                        text: "Anuluj",
+                        callback: function (dialogId) {
+                            SOCKET.getSocket().emit('cancelInvite', id);
+                            $("#" + dialogId).remove();
+                        }
+                    }
+                ]
             });
             SOCKET.getSocket().emit('invite', id, function (responseMsg) {
                 Dialog.removeExistsDialog();
@@ -49,7 +58,7 @@ GlobalChat.prototype.initGameInviteListener = function () {
                     });
                 } else if (responseMsg === 'refused') {
                     Dialog.createDialog({
-                                message: "Gracz odrzucił zaproszenie",
+                        message: "Gracz odrzucił zaproszenie",
                         buttons: [
                             {
                                 text: "Zaloguj",

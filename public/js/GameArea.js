@@ -24,7 +24,7 @@ GameArea.prototype.init = function (params) {
     this.timerHasStopped = false;
 
     this.ballImage = new Image();
-    this.ballImage.src = "../img/area_ball.png";
+    this.ballImage.src = "../img/game_area_ball.png";
 
     this.viewMode = "landscape";
 

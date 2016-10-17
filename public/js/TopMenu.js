@@ -1,23 +1,22 @@
 
 var TopMenu = {
-    isRankingActive: false,
+    isScoreListActive: false,
     isMyAccountActive: false
 };
 
 
-TopMenu.showRanking = function() {
+TopMenu.showScoreList = function() {
     this.isMyAccountActive = false;
     var that = this;
-    $("#menu-items-container").load("../views/ranking.html", function() {
-        $("#close-ranking").on('click', function() {
-            that.isRankingActive = false;
-            TopMenu.hideRanking();
+    $("#menu-items-container").load("../views/scoreList.html", function() {
+        $("#close-scoreList").on('click', function() {
+            that.isScoreListActive = false;
+            TopMenu.hideScoreList();
         });
-        SOCKET.getSocket().emit('getRanking', function(data) {
+        SOCKET.getSocket().emit('getScoreList', function(data) {
             var index = 0;
-//            for (var i = 0; i < 100; i++) {
             data.forEach(function(item) {
-                $("#ranking-table tr:last").after(
+                $("#scoreList-table tr:last").after(
                         "<tr>" +
                         "<td>" + (++index) + "</td>" +
                         "<td>" + item.nickname + "</td>" +
@@ -28,20 +27,19 @@ TopMenu.showRanking = function() {
                         "</tr>"
                         );
             });
-//            }
         });
     });
 };
 
-TopMenu.hideRanking = function() {
-    $("#ranking").remove();
+TopMenu.hideScoreList = function() {
+    $("#scoreList").remove();
 };
 
 TopMenu.showMyAccount = function() {
-    this.isRankingActive = false;
+    this.isScoreListActive = false;
     var that = this;
     $("#menu-items-container").load("../views/myAccount.html", function() {
-        $("#close-ranking").on('click', function() {
+        $("#close-scoreList").on('click', function() {
             that.isMyAccountActive = false;
             TopMenu.hideMyAccount();
         });
@@ -80,9 +78,6 @@ TopMenu.showMyAccount = function() {
                             );
                 });
             }
-
-
-
         });
         TopMenu.addMyAccountListeners();
     });
@@ -127,7 +122,7 @@ TopMenu.addMyAccountListeners = function() {
             var email = $("#my-email").val();
 
             if (!/\S+@\S+\.\S+/.test(email)) {
-                Dialog.showInfoDialog("Nieprawidłowy format adresu email");
+                Dialog.showInfoDialog("Nieprawidłowy format adresu e-mail");
                 return;
             }
 
@@ -176,12 +171,12 @@ TopMenu.hideMyAccount = function() {
 TopMenu.init = function() {
     $("#top-menu").show();
     var that = this;
-    $("#show-ranking").on('click', function() {
-        if (that.isRankingActive) {
+    $("#show-scoreList").on('click', function() {
+        if (that.isScoreListActive) {
             return;
         }
-        that.isRankingActive = true;
-        TopMenu.showRanking();
+        that.isScoreListActive = true;
+        TopMenu.showScoreList();
     });
 
     $("#my-account").on('click', function() {

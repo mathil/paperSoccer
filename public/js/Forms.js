@@ -51,6 +51,12 @@ Forms.prototype.showRegistrationForm = function () {
     $("#container").load("../views/registration.html", function () {
         $("#registration-form-form").on('submit', function (evt) {
             evt.preventDefault();
+            
+            if (!/\S+@\S+\.\S+/.test($("#registration-email").val())) {
+                Dialog.showInfoDialog("Nieprawidłowy format adresu e-mail");
+                return;
+            }
+            
             var formData = {
                 nick: $("#registration-nick").val(),
                 email: $("#registration-email").val(),
@@ -95,7 +101,7 @@ Forms.prototype.showResetPasswordForm = function () {
             var email = $("#reset-password-email").val();
 
             if (!/\S+@\S+\.\S+/.test(email)) {
-                Dialog.showInfoDialog("Nieprawidłowy format adresu email");
+                Dialog.showInfoDialog("Nieprawidłowy format adresu e-mail");
                 return;
             }
 

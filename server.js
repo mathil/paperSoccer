@@ -122,7 +122,6 @@ io.sockets.on('connection', function (socket) {
     //Zaproszenie do gry
     socket.on('invite', function (opponentNickname, callback) {
         console.log("Zaproszenie do gry od " + socket.nickname + " dla " + opponentNickname);
-
         var opponent = usersCollection.getByNickname(opponentNickname);
         if (opponent.getHasGame()) {
             callback('opponentHasGame');
@@ -263,7 +262,7 @@ io.sockets.on('connection', function (socket) {
         callback(usersCollection.getList());
     });
 
-    socket.on('getRanking', function (callback) {
+    socket.on('getScoreList', function (callback) {
         queryManager.getScoreForAllUsers(function (result) {
             callback(result);
         });

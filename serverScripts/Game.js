@@ -25,7 +25,7 @@ var Game = function (playerA, playerB, roomId) {
     this.currentPlayer = playerA;
     this.userANextGameApproved = null;
     this.userBNextGameApproved = null;
-    this.lastPoint = {// domyślnie środek planszy
+    this.lastPoint = {
         x: 315,
         y: 225
     };
@@ -52,15 +52,10 @@ var Game = function (playerA, playerB, roomId) {
     ];
 
     this.playerAGoalNodes = this.leftGoalNodes;
-
     this.playerBGoalNodes = this.rightGoalNodes;
-
     this.moveHistory = [];
-
     this.nextGameAccepted = null;
-
     that = this;
-
 };
 
 
