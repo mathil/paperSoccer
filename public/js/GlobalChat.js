@@ -86,10 +86,13 @@ GlobalChat.prototype.initInputListener = function () {
     });
 
     function sendGlobalChatMessage() {
-        SOCKET.getSocket().emit('globalChatMessage', {
-            message: $("#global-chat-message").val()
-        });
-        $("#global-chat-message").val("");
+        var message = $("#global-chat-message").val();
+        if (message !== '') {
+            SOCKET.getSocket().emit('globalChatMessage', {
+                message: message
+            });
+            $("#global-chat-message").val("");
+        }
     }
 
 };

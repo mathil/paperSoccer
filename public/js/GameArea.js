@@ -24,7 +24,7 @@ GameArea.prototype.init = function (params) {
     this.timerHasStopped = false;
 
     this.ballImage = new Image();
-    this.ballImage.src = "../img/game_area_ball.png";
+    this.ballImage.src = "../img/area_ball.png";
 
     this.viewMode = "landscape";
 
@@ -227,7 +227,7 @@ GameArea.prototype.drawArea = function () {
     this.context.moveTo(45, 180);
     this.context.lineTo(45, 270);
     this.context.stroke();
-    
+
     this.context.strokeStyle = this.playerBColorLine;
     this.context.fillStyle = this.playerBColorLine;
     this.context.beginPath();
@@ -316,10 +316,13 @@ GameArea.prototype.initChatListeners = function () {
     });
 
     function sendGameChatMessage() {
-        SOCKET.getSocket().emit('gameChatMessage', {
-            message: $("#game-chat-input").val()
-        });
-        $("#game-chat-input").val("");
+        var message = $("#game-chat-input").val();
+        if (message !== '') {
+            SOCKET.getSocket().emit('gameChatMessage', {
+                message: message
+            });
+            $("#game-chat-input").val("");
+        }
     }
 };
 
