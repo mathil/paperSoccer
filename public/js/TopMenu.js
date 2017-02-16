@@ -140,24 +140,10 @@ TopMenu.addMyAccountListeners = function() {
         }
     });
 
-
-
     $("#close-my-account").on('click', function() {
         that.isMyAccountActive = false;
         $("#my-account-container").remove();
     });
-
-
-
-
-
-
-
-
-
-
-
-
 
 };
 

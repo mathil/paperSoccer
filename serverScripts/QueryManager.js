@@ -47,7 +47,6 @@ QueryManager.prototype.insertUser = function (nickname, email, password, callbac
         if (!err) {
             callback(true);
         } else {
-            console.log(err);
             callback(false);
         }
     });
@@ -68,8 +67,6 @@ QueryManager.prototype.updateScore = function (winner, loser) {
             "WHERE nickname='" + winner + "'";
 
     this.dbConn.query(updateWinnerQuery, function (err, rows, field) {
-        console.log('winnerq');
-        console.log(err);
     });
 
     var updateLoserQuery = "UPDATE user SET lost_matches=lost_matches+1, " +
@@ -78,8 +75,6 @@ QueryManager.prototype.updateScore = function (winner, loser) {
             "WHERE nickname='" + loser + "'";
 
     this.dbConn.query(updateLoserQuery, function (err, rows, field) {
-        console.log('loserq ' + loser);
-        console.log(err);
     });
 };
 

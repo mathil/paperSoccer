@@ -19,10 +19,6 @@ var queryManager = new QueryManager();
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/lib'));
 
-
-//queryManager.updateScore("asd", "qwe");
-
-
 // index    
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/public/views/index.html');
@@ -66,7 +62,6 @@ io.sockets.on('connection', function (socket) {
                             mailer.sendRegistrationMail(formData.nick, formData.email)
                             registrationResponse(true, null);
                         } else {
-                            console.log('tutaj');
                             registrationResponse(false, "Wystąpił błąd podczas tworzenia konta.");
                         }
                     });

@@ -51,12 +51,12 @@ Forms.prototype.showRegistrationForm = function () {
     $("#container").load("../views/registration.html", function () {
         $("#registration-form-form").on('submit', function (evt) {
             evt.preventDefault();
-            
+
             if (!/\S+@\S+\.\S+/.test($("#registration-email").val())) {
                 Dialog.showInfoDialog("Nieprawidłowy format adresu e-mail");
                 return;
             }
-            
+
             var formData = {
                 nick: $("#registration-nick").val(),
                 email: $("#registration-email").val(),
@@ -82,9 +82,9 @@ Forms.prototype.showRegistrationForm = function () {
                         ]
                     });
                 } else {
-                   Dialog.showInfoDialog(invalidMessage);
-                   SOCKET.getSocket().disconnect();
+                    Dialog.showInfoDialog(invalidMessage);
                 }
+                tempSocket.getSocket().disconnect();
             });
         });
         $("#show-login-form").click(function () {

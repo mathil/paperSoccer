@@ -19,8 +19,5 @@ $(window).bind('beforeunload', function (evt) {
 });
 $(document).ready(function () {
     (new Forms()).init();
-
-//    $("#container").load("../views/game.html");
-
 });
 
