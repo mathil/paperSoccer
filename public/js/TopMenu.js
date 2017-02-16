@@ -126,11 +126,13 @@ TopMenu.addMyAccountListeners = function() {
                 return;
             }
 
-            SOCKET.getSocket().emit('changeEmail', email, function(success) {
-                if (success) {
-                    Dialog.showInfoDialog("Email został zmieniony");
-                } else {
+            SOCKET.getSocket().emit('changeEmail', email, function(result) {
+                if (result === 'emailExists') {
+                    Dialog.showInfoDialog("W systemie istnieje użytkownik o podanym adresie email");
+                } else if(result === 'error') {
                     Dialog.showInfoDialog("Wystąpił problem podczas zmiany adresu email");
+                } else {
+                    Dialog.showInfoDialog("Email został zmieniony");
                 }
             });
 

@@ -123,11 +123,18 @@ QueryManager.prototype.changePassword = function (nickname, currentPassword, new
 };
 
 QueryManager.prototype.changeEmail = function (nickname, email, callback) {
-    this.dbConn.query("UPDATE user SET email='" + email + "' WHERE nickname='" + nickname + "'", function (err, rows, field) {
-        if (!err) {
-            callback(true);
+    var that = this;
+    this.dbConn.query("SELECT id FROM user WHERE email='" + email + "' AND nickname !='" + nickname + "'", function (err, rows, field) {
+        if (rows.length === 0) {
+            that.dbConn.query("UPDATE user SET email='" + email + "' WHERE nickname='" + nickname + "'", function (err, rows, field) {
+                if (!err) {
+                    callback('success');
+                } else {
+                    callback('error');
+                }
+            });
         } else {
-            callback(false);
+            callback('emailExists');
         }
     });
 };
